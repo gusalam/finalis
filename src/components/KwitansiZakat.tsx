@@ -15,6 +15,7 @@ export interface DetailZakatItem {
   jumlah_jiwa: number;
   metode_pembayaran?: string | null;
   harga_beras_per_liter?: number | null;
+  nama_anggota_jiwa?: string[] | null;
 }
 
 export interface KwitansiData {
@@ -228,6 +229,23 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                             <td>{data.alamat_muzakki}</td>
                           </tr>
                         )}
+                        {/* Anggota Jiwa from Zakat Fitrah */}
+                        {(() => {
+                          const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
+                          const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
+                          if (!anggota || anggota.length === 0) return null;
+                          return (
+                            <tr>
+                              <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota Jiwa</td>
+                              <td style={{ verticalAlign: 'top' }}>:</td>
+                              <td>
+                                {anggota.map((nama, i) => (
+                                  <div key={i}>{i + 1}. {nama}</div>
+                                ))}
+                              </td>
+                            </tr>
+                          );
+                        })()}
                       </tbody>
                     </table>
 

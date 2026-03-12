@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 export type MetodePembayaran = 'beras' | 'uang';
 
 export interface DetailForm {
-  fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string };
+  fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string; nama_anggota_jiwa: string[] };
   mal: { enabled: boolean; jumlah_uang: string };
   infaq: { enabled: boolean; jumlah_uang: string };
   fidyah: { enabled: boolean; jumlah_uang: string; jumlah_beras: string; jumlah_jiwa: string; metode: MetodePembayaran; harga_beras_per_liter: string };
@@ -16,7 +16,7 @@ export interface DetailForm {
 const LITER_PER_JIWA = 3.5;
 
 export const emptyDetail = (): DetailForm => ({
-  fitrah: { enabled: false, jumlah_jiwa: '1', jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_beras_per_liter: '' },
+  fitrah: { enabled: false, jumlah_jiwa: '1', jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
   mal: { enabled: false, jumlah_uang: '' },
   infaq: { enabled: false, jumlah_uang: '' },
   fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', jumlah_jiwa: '1', metode: 'beras', harga_beras_per_liter: '' },
@@ -34,11 +34,13 @@ const FitrahFields = memo(function FitrahFields({
   fitrah,
   onToggle,
   onFieldChange,
+  onAnggotaChange,
   idPrefix,
 }: {
   fitrah: DetailForm['fitrah'];
   onToggle: (v: boolean) => void;
   onFieldChange: (field: string, value: string) => void;
+  onAnggotaChange: (index: number, value: string) => void;
   idPrefix: string;
 }) {
   const jiwa = Number(fitrah.jumlah_jiwa) || 0;
@@ -105,6 +107,24 @@ const FitrahFields = memo(function FitrahFields({
                 readOnly
                 className="bg-muted cursor-not-allowed"
               />
+            </div>
+          )}
+
+          {/* Nama Anggota Jiwa */}
+          {jiwa > 1 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Nama Anggota Jiwa</Label>
+              <p className="text-xs text-muted-foreground">Nama Muzakki otomatis dihitung sebagai jiwa pertama</p>
+              {Array.from({ length: jiwa - 1 }, (_, i) => (
+                <div key={i}>
+                  <Label className="text-xs text-muted-foreground">Nama Anggota Jiwa {i + 1}</Label>
+                  <Input
+                    placeholder={`Nama anggota jiwa ${i + 1}`}
+                    value={fitrah.nama_anggota_jiwa[i] || ''}
+                    onChange={e => onAnggotaChange(i, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           )}
 
@@ -280,7 +300,28 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
   }, [onChange]);
 
   const updateFitrahField = useCallback((field: string, value: string) => {
-    onChange(prev => ({ ...prev, fitrah: { ...prev.fitrah, [field]: value } }));
+    onChange(prev => {
+      const updated = { ...prev, fitrah: { ...prev.fitrah, [field]: value } };
+      // Adjust nama_anggota_jiwa array when jumlah_jiwa changes
+      if (field === 'jumlah_jiwa') {
+        const newJiwa = Math.max(0, (Number(value) || 1) - 1);
+        const currentNames = [...prev.fitrah.nama_anggota_jiwa];
+        if (newJiwa > currentNames.length) {
+          updated.fitrah.nama_anggota_jiwa = [...currentNames, ...Array(newJiwa - currentNames.length).fill('')];
+        } else {
+          updated.fitrah.nama_anggota_jiwa = currentNames.slice(0, newJiwa);
+        }
+      }
+      return updated;
+    });
+  }, [onChange]);
+
+  const updateAnggotaJiwa = useCallback((index: number, value: string) => {
+    onChange(prev => {
+      const names = [...prev.fitrah.nama_anggota_jiwa];
+      names[index] = value;
+      return { ...prev, fitrah: { ...prev.fitrah, nama_anggota_jiwa: names } };
+    });
   }, [onChange]);
 
   const toggleMal = useCallback((v: boolean) => {
@@ -310,7 +351,7 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
   return (
     <div className="space-y-4">
       <Label className="text-base font-semibold">Jenis Zakat</Label>
-      <FitrahFields fitrah={detail.fitrah} onToggle={toggleFitrah} onFieldChange={updateFitrahField} idPrefix={idPrefix} />
+      <FitrahFields fitrah={detail.fitrah} onToggle={toggleFitrah} onFieldChange={updateFitrahField} onAnggotaChange={updateAnggotaJiwa} idPrefix={idPrefix} />
       <SimpleMoneyField id={`${idPrefix}-mal`} label="Zakat Mal" enabled={detail.mal.enabled} value={detail.mal.jumlah_uang} onToggle={toggleMal} onValueChange={updateMal} />
       <SimpleMoneyField id={`${idPrefix}-infaq`} label="Infaq" enabled={detail.infaq.enabled} value={detail.infaq.jumlah_uang} onToggle={toggleInfaq} onValueChange={updateInfaq} />
       <FidyahFields fidyah={detail.fidyah} onToggle={toggleFidyah} onFieldChange={updateFidyahField} idPrefix={idPrefix} />

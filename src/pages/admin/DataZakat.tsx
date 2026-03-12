@@ -62,11 +62,13 @@ export default function DataZakat() {
       const jiwa = Number(detail.fitrah.jumlah_jiwa) || 1;
       const metode = detail.fitrah.metode;
       const harga = Number(detail.fitrah.harga_beras_per_liter) || 0;
+      const namaAnggota = detail.fitrah.nama_anggota_jiwa.filter(n => n.trim());
       items.push({
         jenis_zakat: 'Zakat Fitrah', jumlah_jiwa: jiwa,
         jumlah_uang: metode === 'uang' ? jiwa * LITER_PER_JIWA * harga : 0,
         jumlah_beras: metode === 'beras' ? jiwa * LITER_PER_JIWA : 0,
         metode_pembayaran: metode, harga_beras_per_liter: harga || null,
+        nama_anggota_jiwa: namaAnggota.length > 0 ? namaAnggota : null,
       });
     }
     if (detail.mal.enabled) items.push({ jenis_zakat: 'Zakat Mal', jumlah_uang: Number(detail.mal.jumlah_uang) || 0, jumlah_beras: 0, jumlah_jiwa: 0 });
@@ -129,7 +131,7 @@ export default function DataZakat() {
     const d = emptyDetail();
     (item.detail_zakat || []).forEach((det: any) => {
       const metode = det.metode_pembayaran || (Number(det.jumlah_beras) > 0 ? 'beras' : 'uang');
-      if (det.jenis_zakat === 'Zakat Fitrah') { d.fitrah = { enabled: true, jumlah_jiwa: String(det.jumlah_jiwa || 1), jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || '') }; }
+      if (det.jenis_zakat === 'Zakat Fitrah') { d.fitrah = { enabled: true, jumlah_jiwa: String(det.jumlah_jiwa || 1), jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || ''), nama_anggota_jiwa: Array.isArray(det.nama_anggota_jiwa) ? det.nama_anggota_jiwa : [] }; }
       if (det.jenis_zakat === 'Zakat Mal') d.mal = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
       if (det.jenis_zakat === 'Infaq' || det.jenis_zakat === 'Shodaqoh') d.infaq = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
       if (det.jenis_zakat === 'Fidyah') d.fidyah = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), jumlah_jiwa: String(det.jumlah_jiwa || 1), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || '') };
@@ -144,7 +146,7 @@ export default function DataZakat() {
     nomor: t.nomor_kwitansi || 0, receipt_number: t.receipt_number || undefined, nama_muzakki: t.nama_muzakki,
     status_muzakki: t.status_muzakki || undefined, rt_nama: t.rt?.nama_rt || undefined,
     alamat_muzakki: t.alamat_muzakki || undefined,
-    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null })),
+    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null, nama_anggota_jiwa: Array.isArray(d.nama_anggota_jiwa) ? d.nama_anggota_jiwa : null })),
     tanggal: t.tanggal, penerima: getCreatorName(t),
   });
 
