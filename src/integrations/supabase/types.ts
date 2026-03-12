@@ -23,6 +23,7 @@ export type Database = {
           jumlah_jiwa: number | null
           jumlah_uang: number | null
           metode_pembayaran: string | null
+          nama_anggota_jiwa: Json | null
           transaksi_id: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           jumlah_jiwa?: number | null
           jumlah_uang?: number | null
           metode_pembayaran?: string | null
+          nama_anggota_jiwa?: Json | null
           transaksi_id: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           jumlah_jiwa?: number | null
           jumlah_uang?: number | null
           metode_pembayaran?: string | null
+          nama_anggota_jiwa?: Json | null
           transaksi_id?: string
         }
         Relationships: [
