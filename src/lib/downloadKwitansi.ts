@@ -333,9 +333,6 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y += 8;
     }
 
-    // Terbilang & Signature
-    const dateStr = new Date(data.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
     // Calculate beras equivalent for terbilang
     let berasEquivalent = 0;
     entries.forEach(p => {
@@ -350,10 +347,8 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     });
     const grandTotal = totalUang + berasEquivalent;
 
+    // Terbilang only (signature moved to sidebar)
     const sigY = Math.max(y + 8, contentEndY - 32);
-    const sigX = contentX + contentW * 0.6;
-
-    // Terbilang
     if (grandTotal > 0) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
@@ -362,25 +357,9 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       doc.setFont('helvetica', 'bolditalic');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
-      const splitText = doc.splitTextToSize(terbilang(grandTotal), contentW * 0.5);
+      const splitText = doc.splitTextToSize(terbilang(grandTotal), contentW - 30);
       doc.text(splitText, labelX + 26, sigY);
     }
-
-    // Signature
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Jakarta, ${dateStr}`, sigX + 16, sigY, { align: 'center' });
-    doc.text('Penerima,', sigX + 16, sigY + 6, { align: 'center' });
-
-    const sigName = data.penerima || '(                    )';
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text(sigName, sigX + 16, sigY + 26, { align: 'center' });
-    const nameW = doc.getTextWidth(sigName);
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.line(sigX + 16 - nameW / 2, sigY + 27, sigX + 16 + nameW / 2, sigY + 27);
 
     const blob = doc.output('blob');
     const fileName = `kwitansi-${data.receipt_number || data.nomor}.pdf`;

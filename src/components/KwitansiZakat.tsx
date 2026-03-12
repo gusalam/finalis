@@ -324,26 +324,14 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                     </div>
                   </div>
 
-                  {/* Bottom section: Terbilang & Tanda Tangan */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '58% 42%', marginTop: '14px', gap: '12px', alignItems: 'end' }}>
-                    {/* Kiri: Terbilang */}
-                    <div>
-                      {grandTotal > 0 && (
-                        <div style={{ fontSize: '16px', lineHeight: '1.5' }}>
-                          <span style={{ color: '#276749', fontWeight: 'bold' }}>Terbilang: </span>
-                          <strong style={{ fontStyle: 'italic' }}>{terbilang(grandTotal)}</strong>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Kanan: Tanggal & Tanda Tangan */}
-                    <div style={{ textAlign: 'center', fontSize: '16px' }}>
-                      <div>Jakarta, {dateStr}</div>
-                      <div style={{ marginTop: '4px' }}>Penerima,</div>
-                      <div style={{ marginTop: '40px', fontWeight: 'bold', borderBottom: '1px solid #000', display: 'inline-block', paddingBottom: '2px' }}>
-                        {data.penerima || '(                    )'}
+                  {/* Bottom section: Terbilang */}
+                  <div style={{ marginTop: '14px' }}>
+                    {grandTotal > 0 && (
+                      <div style={{ fontSize: '16px', lineHeight: '1.5' }}>
+                        <span style={{ color: '#276749', fontWeight: 'bold' }}>Terbilang: </span>
+                        <strong style={{ fontStyle: 'italic' }}>{terbilang(grandTotal)}</strong>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
