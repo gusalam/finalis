@@ -131,6 +131,7 @@ export default function InputZakat() {
       const jiwa = Number(detail.fidyah.jumlah_jiwa) || 1;
       const metode = detail.fidyah.metode;
       const harga = Number(detail.fidyah.harga_beras_per_liter) || 0;
+      const namaAnggotaFidyah = detail.fidyah.nama_anggota_jiwa.filter(n => n.trim());
       items.push({
         jenis_zakat: 'Fidyah',
         jumlah_uang: metode === 'uang' ? jiwa * LITER_PER_JIWA * harga : 0,
@@ -138,6 +139,7 @@ export default function InputZakat() {
         jumlah_jiwa: jiwa,
         metode_pembayaran: metode,
         harga_beras_per_liter: harga || null,
+        nama_anggota_jiwa: namaAnggotaFidyah.length > 0 ? namaAnggotaFidyah : null,
       });
     }
     return items;

@@ -172,18 +172,27 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
               <div style={{ border: '1px solid #276749', display: 'grid', gridTemplateColumns: '22% 78%', width: '100%', height: '100%', boxSizing: 'border-box' }}>
                 
                 {/* Kolom Kiri - Sidebar */}
-                <div style={{ backgroundColor: '#e6f5e6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 10px', borderRight: '2px solid #276749' }}>
-                  <img src={logoImg} alt="Logo" style={{ width: '80px', height: '80px', marginBottom: '14px' }} />
-                  <div style={{ textAlign: 'center', color: '#276749', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.6' }}>
-                    BADAN AMIL<br />ZAKAT<br />MASJID AL-IKHLAS<br />KEBON BARU
-                  </div>
-                  {qrDataUrl && (
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                      <img src={qrDataUrl} alt="QR Verifikasi" style={{ width: '90px', height: '90px' }} />
-                      <div style={{ fontSize: '9px', color: '#666', marginTop: '6px' }}>Scan untuk verifikasi</div>
+                <div style={{ backgroundColor: '#e6f5e6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '16px 10px', borderRight: '2px solid #276749' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src={logoImg} alt="Logo" style={{ width: '80px', height: '80px', marginBottom: '14px' }} />
+                    <div style={{ textAlign: 'center', color: '#276749', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.6' }}>
+                      BADAN AMIL<br />ZAKAT<br />MASJID AL-IKHLAS<br />KEBON BARU
                     </div>
-                  )}
-                  <div style={{ fontSize: '9px', color: '#666', marginTop: '8px' }}>www.masjidalikhas.or.id</div>
+                    {qrDataUrl && (
+                      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                        <img src={qrDataUrl} alt="QR Verifikasi" style={{ width: '90px', height: '90px' }} />
+                        <div style={{ fontSize: '9px', color: '#666', marginTop: '6px' }}>Scan untuk verifikasi</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'center', fontSize: '12px', marginTop: '12px' }}>
+                    <div>Jakarta, {dateStr}</div>
+                    <div style={{ marginTop: '4px' }}>Penerima,</div>
+                    <div style={{ marginTop: '30px', fontWeight: 'bold', borderBottom: '1px solid #000', display: 'inline-block', paddingBottom: '2px', fontSize: '13px' }}>
+                      {data.penerima || '(                    )'}
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#666', marginTop: '10px' }}>www.masjidalikhas.or.id</div>
+                  </div>
                 </div>
 
                 {/* Kolom Kanan - Konten */}
@@ -229,12 +238,15 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                             <td>{data.alamat_muzakki}</td>
                           </tr>
                         )}
-                        {/* Anggota Jiwa from Zakat Fitrah */}
+                        {/* Anggota Jiwa from Zakat Fitrah or Fidyah */}
                         {(() => {
                           const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-                          const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
-                          if (!anggota || anggota.length === 0) return null;
-                          const semuaAnggota = [data.nama_muzakki, ...anggota].join(', ');
+                          const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
+                          const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+                          const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+                          const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
+                          if (allAnggota.length === 0) return null;
+                          const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
                           return (
                             <tr>
                               <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota</td>
@@ -315,26 +327,14 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                     </div>
                   </div>
 
-                  {/* Bottom section: Terbilang & Tanda Tangan */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '58% 42%', marginTop: '14px', gap: '12px', alignItems: 'end' }}>
-                    {/* Kiri: Terbilang */}
-                    <div>
-                      {grandTotal > 0 && (
-                        <div style={{ fontSize: '16px', lineHeight: '1.5' }}>
-                          <span style={{ color: '#276749', fontWeight: 'bold' }}>Terbilang: </span>
-                          <strong style={{ fontStyle: 'italic' }}>{terbilang(grandTotal)}</strong>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Kanan: Tanggal & Tanda Tangan */}
-                    <div style={{ textAlign: 'center', fontSize: '16px' }}>
-                      <div>Jakarta, {dateStr}</div>
-                      <div style={{ marginTop: '4px' }}>Penerima,</div>
-                      <div style={{ marginTop: '40px', fontWeight: 'bold', borderBottom: '1px solid #000', display: 'inline-block', paddingBottom: '2px' }}>
-                        {data.penerima || '(                    )'}
+                  {/* Bottom section: Terbilang */}
+                  <div style={{ marginTop: '14px' }}>
+                    {grandTotal > 0 && (
+                      <div style={{ fontSize: '16px', lineHeight: '1.5' }}>
+                        <span style={{ color: '#276749', fontWeight: 'bold' }}>Terbilang: </span>
+                        <strong style={{ fontStyle: 'italic' }}>{terbilang(grandTotal)}</strong>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

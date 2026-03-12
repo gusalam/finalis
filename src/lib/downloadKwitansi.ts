@@ -94,6 +94,23 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       doc.text('Scan untuk verifikasi', sidebarCenterX, orgY + 62, { align: 'center' });
     }
 
+    // Date & Signature in sidebar below QR
+    const dateStr = new Date(data.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const sigAreaY = innerY + innerH - 42;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Jakarta, ${dateStr}`, sidebarCenterX, sigAreaY, { align: 'center' });
+    doc.text('Penerima,', sidebarCenterX, sigAreaY + 5, { align: 'center' });
+    const sigName = data.penerima || '(                    )';
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(sigName, sidebarCenterX, sigAreaY + 22, { align: 'center' });
+    const nameW = doc.getTextWidth(sigName);
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(sidebarCenterX - nameW / 2, sigAreaY + 23, sidebarCenterX + nameW / 2, sigAreaY + 23);
+
     // Website
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
@@ -140,11 +157,14 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     if (data.rt_nama) drawInfoRow('RT', data.rt_nama);
     if (data.alamat_muzakki) drawInfoRow('Alamat', data.alamat_muzakki, false);
 
-    // Anggota Jiwa - comma separated
+    // Anggota Jiwa - comma separated (from Fitrah and Fidyah)
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-    const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
-    if (anggota && anggota.length > 0) {
-      const semuaAnggota = [data.nama_muzakki, ...anggota].join(', ');
+    const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
+    const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+    const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+    const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
+    if (allAnggota.length > 0) {
+      const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
@@ -316,9 +336,6 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y += 8;
     }
 
-    // Terbilang & Signature
-    const dateStr = new Date(data.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
     // Calculate beras equivalent for terbilang
     let berasEquivalent = 0;
     entries.forEach(p => {
@@ -333,10 +350,8 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     });
     const grandTotal = totalUang + berasEquivalent;
 
+    // Terbilang only (signature moved to sidebar)
     const sigY = Math.max(y + 8, contentEndY - 32);
-    const sigX = contentX + contentW * 0.6;
-
-    // Terbilang
     if (grandTotal > 0) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
@@ -345,25 +360,9 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       doc.setFont('helvetica', 'bolditalic');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
-      const splitText = doc.splitTextToSize(terbilang(grandTotal), contentW * 0.5);
+      const splitText = doc.splitTextToSize(terbilang(grandTotal), contentW - 30);
       doc.text(splitText, labelX + 26, sigY);
     }
-
-    // Signature
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Jakarta, ${dateStr}`, sigX + 16, sigY, { align: 'center' });
-    doc.text('Penerima,', sigX + 16, sigY + 6, { align: 'center' });
-
-    const sigName = data.penerima || '(                    )';
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text(sigName, sigX + 16, sigY + 26, { align: 'center' });
-    const nameW = doc.getTextWidth(sigName);
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.line(sigX + 16 - nameW / 2, sigY + 27, sigX + 16 + nameW / 2, sigY + 27);
 
     const blob = doc.output('blob');
     const fileName = `kwitansi-${data.receipt_number || data.nomor}.pdf`;

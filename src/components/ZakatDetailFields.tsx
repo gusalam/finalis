@@ -10,7 +10,7 @@ export interface DetailForm {
   fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string; nama_anggota_jiwa: string[] };
   mal: { enabled: boolean; jumlah_uang: string };
   infaq: { enabled: boolean; jumlah_uang: string };
-  fidyah: { enabled: boolean; jumlah_uang: string; jumlah_beras: string; jumlah_jiwa: string; metode: MetodePembayaran; harga_beras_per_liter: string };
+  fidyah: { enabled: boolean; jumlah_uang: string; jumlah_beras: string; jumlah_jiwa: string; metode: MetodePembayaran; harga_beras_per_liter: string; nama_anggota_jiwa: string[] };
 }
 
 const LITER_PER_JIWA = 3.5;
@@ -19,7 +19,7 @@ export const emptyDetail = (): DetailForm => ({
   fitrah: { enabled: false, jumlah_jiwa: '1', jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
   mal: { enabled: false, jumlah_uang: '' },
   infaq: { enabled: false, jumlah_uang: '' },
-  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', jumlah_jiwa: '1', metode: 'beras', harga_beras_per_liter: '' },
+  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', jumlah_jiwa: '1', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
 });
 
 interface Props {
@@ -196,18 +196,18 @@ const FidyahFields = memo(function FidyahFields({
   fidyah,
   onToggle,
   onFieldChange,
+  onAnggotaChange,
   idPrefix,
 }: {
   fidyah: DetailForm['fidyah'];
   onToggle: (v: boolean) => void;
   onFieldChange: (field: string, value: string) => void;
+  onAnggotaChange: (index: number, value: string) => void;
   idPrefix: string;
 }) {
   const jiwa = Number(fidyah.jumlah_jiwa) || 0;
   const totalLiter = jiwa * LITER_PER_JIWA;
   const harga = Number(fidyah.harga_beras_per_liter) || 0;
-  const uangDibayar = Number(fidyah.jumlah_uang) || 0;
-  const setaraLiter = harga > 0 ? uangDibayar / harga : 0;
 
   return (
     <div className="space-y-3">
@@ -267,6 +267,24 @@ const FidyahFields = memo(function FidyahFields({
                 readOnly
                 className="bg-muted cursor-not-allowed"
               />
+            </div>
+          )}
+
+          {/* Nama Anggota Jiwa */}
+          {jiwa > 1 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Nama Anggota Jiwa</Label>
+              <p className="text-xs text-muted-foreground">Nama Muzakki otomatis dihitung sebagai jiwa pertama</p>
+              {Array.from({ length: jiwa - 1 }, (_, i) => (
+                <div key={i}>
+                  <Label className="text-xs text-muted-foreground">Nama Anggota Jiwa {i + 1}</Label>
+                  <Input
+                    placeholder={`Nama anggota jiwa ${i + 1}`}
+                    value={fidyah.nama_anggota_jiwa[i] || ''}
+                    onChange={e => onAnggotaChange(i, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           )}
 
@@ -345,7 +363,27 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
   }, [onChange]);
 
   const updateFidyahField = useCallback((field: string, v: string) => {
-    onChange(d => ({ ...d, fidyah: { ...d.fidyah, [field]: v } }));
+    onChange(prev => {
+      const updated = { ...prev, fidyah: { ...prev.fidyah, [field]: v } };
+      if (field === 'jumlah_jiwa') {
+        const newJiwa = Math.max(0, (Number(v) || 1) - 1);
+        const currentNames = [...prev.fidyah.nama_anggota_jiwa];
+        if (newJiwa > currentNames.length) {
+          updated.fidyah.nama_anggota_jiwa = [...currentNames, ...Array(newJiwa - currentNames.length).fill('')];
+        } else {
+          updated.fidyah.nama_anggota_jiwa = currentNames.slice(0, newJiwa);
+        }
+      }
+      return updated;
+    });
+  }, [onChange]);
+
+  const updateFidyahAnggota = useCallback((index: number, value: string) => {
+    onChange(prev => {
+      const names = [...prev.fidyah.nama_anggota_jiwa];
+      names[index] = value;
+      return { ...prev, fidyah: { ...prev.fidyah, nama_anggota_jiwa: names } };
+    });
   }, [onChange]);
 
   return (
@@ -354,7 +392,7 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
       <FitrahFields fitrah={detail.fitrah} onToggle={toggleFitrah} onFieldChange={updateFitrahField} onAnggotaChange={updateAnggotaJiwa} idPrefix={idPrefix} />
       <SimpleMoneyField id={`${idPrefix}-mal`} label="Zakat Mal" enabled={detail.mal.enabled} value={detail.mal.jumlah_uang} onToggle={toggleMal} onValueChange={updateMal} />
       <SimpleMoneyField id={`${idPrefix}-infaq`} label="Infaq" enabled={detail.infaq.enabled} value={detail.infaq.jumlah_uang} onToggle={toggleInfaq} onValueChange={updateInfaq} />
-      <FidyahFields fidyah={detail.fidyah} onToggle={toggleFidyah} onFieldChange={updateFidyahField} idPrefix={idPrefix} />
+      <FidyahFields fidyah={detail.fidyah} onToggle={toggleFidyah} onFieldChange={updateFidyahField} onAnggotaChange={updateFidyahAnggota} idPrefix={idPrefix} />
     </div>
   );
 }
