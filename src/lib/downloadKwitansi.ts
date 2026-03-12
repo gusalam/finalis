@@ -94,6 +94,23 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       doc.text('Scan untuk verifikasi', sidebarCenterX, orgY + 62, { align: 'center' });
     }
 
+    // Date & Signature in sidebar below QR
+    const dateStr = new Date(data.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const sigAreaY = innerY + innerH - 42;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Jakarta, ${dateStr}`, sidebarCenterX, sigAreaY, { align: 'center' });
+    doc.text('Penerima,', sidebarCenterX, sigAreaY + 5, { align: 'center' });
+    const sigName = data.penerima || '(                    )';
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text(sigName, sidebarCenterX, sigAreaY + 22, { align: 'center' });
+    const nameW = doc.getTextWidth(sigName);
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(sidebarCenterX - nameW / 2, sigAreaY + 23, sidebarCenterX + nameW / 2, sigAreaY + 23);
+
     // Website
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
