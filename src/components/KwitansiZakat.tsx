@@ -238,12 +238,15 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                             <td>{data.alamat_muzakki}</td>
                           </tr>
                         )}
-                        {/* Anggota Jiwa from Zakat Fitrah */}
+                        {/* Anggota Jiwa from Zakat Fitrah or Fidyah */}
                         {(() => {
                           const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-                          const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
-                          if (!anggota || anggota.length === 0) return null;
-                          const semuaAnggota = [data.nama_muzakki, ...anggota].join(', ');
+                          const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
+                          const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+                          const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+                          const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
+                          if (allAnggota.length === 0) return null;
+                          const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
                           return (
                             <tr>
                               <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota</td>
