@@ -392,7 +392,7 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
       <FitrahFields fitrah={detail.fitrah} onToggle={toggleFitrah} onFieldChange={updateFitrahField} onAnggotaChange={updateAnggotaJiwa} idPrefix={idPrefix} />
       <SimpleMoneyField id={`${idPrefix}-mal`} label="Zakat Mal" enabled={detail.mal.enabled} value={detail.mal.jumlah_uang} onToggle={toggleMal} onValueChange={updateMal} />
       <SimpleMoneyField id={`${idPrefix}-infaq`} label="Infaq" enabled={detail.infaq.enabled} value={detail.infaq.jumlah_uang} onToggle={toggleInfaq} onValueChange={updateInfaq} />
-      <FidyahFields fidyah={detail.fidyah} onToggle={toggleFidyah} onFieldChange={updateFidyahField} idPrefix={idPrefix} />
+      <FidyahFields fidyah={detail.fidyah} onToggle={toggleFidyah} onFieldChange={updateFidyahField} onAnggotaChange={updateFidyahAnggota} idPrefix={idPrefix} />
     </div>
   );
 }
