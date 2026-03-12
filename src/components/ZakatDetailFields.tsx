@@ -363,7 +363,27 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
   }, [onChange]);
 
   const updateFidyahField = useCallback((field: string, v: string) => {
-    onChange(d => ({ ...d, fidyah: { ...d.fidyah, [field]: v } }));
+    onChange(prev => {
+      const updated = { ...prev, fidyah: { ...prev.fidyah, [field]: v } };
+      if (field === 'jumlah_jiwa') {
+        const newJiwa = Math.max(0, (Number(v) || 1) - 1);
+        const currentNames = [...prev.fidyah.nama_anggota_jiwa];
+        if (newJiwa > currentNames.length) {
+          updated.fidyah.nama_anggota_jiwa = [...currentNames, ...Array(newJiwa - currentNames.length).fill('')];
+        } else {
+          updated.fidyah.nama_anggota_jiwa = currentNames.slice(0, newJiwa);
+        }
+      }
+      return updated;
+    });
+  }, [onChange]);
+
+  const updateFidyahAnggota = useCallback((index: number, value: string) => {
+    onChange(prev => {
+      const names = [...prev.fidyah.nama_anggota_jiwa];
+      names[index] = value;
+      return { ...prev, fidyah: { ...prev.fidyah, nama_anggota_jiwa: names } };
+    });
   }, [onChange]);
 
   return (
