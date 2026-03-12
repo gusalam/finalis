@@ -19,7 +19,7 @@ export const emptyDetail = (): DetailForm => ({
   fitrah: { enabled: false, jumlah_jiwa: '1', jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
   mal: { enabled: false, jumlah_uang: '' },
   infaq: { enabled: false, jumlah_uang: '' },
-  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', jumlah_jiwa: '1', metode: 'beras', harga_beras_per_liter: '' },
+  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', jumlah_jiwa: '1', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
 });
 
 interface Props {
