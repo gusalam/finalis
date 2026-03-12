@@ -206,7 +206,7 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         <tr>
                           <td style={{ padding: '3px 0' }}>Nama Muzakki</td>
                           <td>:</td>
-                          <td><strong style={{ fontSize: '17px' }}>{data.nama_muzakki}</strong></td>
+                          <td><strong style={{ fontSize: '17px' }}>{data.nama_muzakki}{totalJiwa > 1 ? ` (${totalJiwa} Jiwa)` : ''}</strong></td>
                         </tr>
                         {data.status_muzakki && (
                           <tr>
