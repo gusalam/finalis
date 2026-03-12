@@ -114,6 +114,7 @@ export default function InputZakat() {
       const jiwa = Number(detail.fitrah.jumlah_jiwa) || 1;
       const metode = detail.fitrah.metode;
       const harga = Number(detail.fitrah.harga_beras_per_liter) || 0;
+      const namaAnggota = detail.fitrah.nama_anggota_jiwa.filter(n => n.trim());
       items.push({
         jenis_zakat: 'Zakat Fitrah',
         jumlah_uang: metode === 'uang' ? jiwa * LITER_PER_JIWA * harga : 0,
@@ -121,6 +122,7 @@ export default function InputZakat() {
         jumlah_jiwa: jiwa,
         metode_pembayaran: metode,
         harga_beras_per_liter: harga || null,
+        nama_anggota_jiwa: namaAnggota.length > 0 ? namaAnggota : null,
       });
     }
     if (detail.mal.enabled) items.push({ jenis_zakat: 'Zakat Mal', jumlah_uang: Number(detail.mal.jumlah_uang) || 0, jumlah_beras: 0, jumlah_jiwa: 0 });
