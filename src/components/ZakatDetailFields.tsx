@@ -34,11 +34,13 @@ const FitrahFields = memo(function FitrahFields({
   fitrah,
   onToggle,
   onFieldChange,
+  onAnggotaChange,
   idPrefix,
 }: {
   fitrah: DetailForm['fitrah'];
   onToggle: (v: boolean) => void;
   onFieldChange: (field: string, value: string) => void;
+  onAnggotaChange: (index: number, value: string) => void;
   idPrefix: string;
 }) {
   const jiwa = Number(fitrah.jumlah_jiwa) || 0;
