@@ -137,7 +137,22 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     if (data.rt_nama) drawInfoRow('RT', data.rt_nama);
     if (data.alamat_muzakki) drawInfoRow('Alamat', data.alamat_muzakki, false);
 
-    // Payment section header
+    // Anggota Jiwa
+    const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
+    const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
+    if (anggota && anggota.length > 0) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Anggota Jiwa', labelX, y);
+      doc.text(':', colonX, y);
+      anggota.forEach((nama, i) => {
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${i + 1}. ${nama}`, valX, y);
+        y += 6;
+      });
+    }
+
     y += 4;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
