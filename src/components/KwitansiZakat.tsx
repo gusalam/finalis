@@ -172,18 +172,27 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
               <div style={{ border: '1px solid #276749', display: 'grid', gridTemplateColumns: '22% 78%', width: '100%', height: '100%', boxSizing: 'border-box' }}>
                 
                 {/* Kolom Kiri - Sidebar */}
-                <div style={{ backgroundColor: '#e6f5e6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 10px', borderRight: '2px solid #276749' }}>
-                  <img src={logoImg} alt="Logo" style={{ width: '80px', height: '80px', marginBottom: '14px' }} />
-                  <div style={{ textAlign: 'center', color: '#276749', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.6' }}>
-                    BADAN AMIL<br />ZAKAT<br />MASJID AL-IKHLAS<br />KEBON BARU
-                  </div>
-                  {qrDataUrl && (
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                      <img src={qrDataUrl} alt="QR Verifikasi" style={{ width: '90px', height: '90px' }} />
-                      <div style={{ fontSize: '9px', color: '#666', marginTop: '6px' }}>Scan untuk verifikasi</div>
+                <div style={{ backgroundColor: '#e6f5e6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '16px 10px', borderRight: '2px solid #276749' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <img src={logoImg} alt="Logo" style={{ width: '80px', height: '80px', marginBottom: '14px' }} />
+                    <div style={{ textAlign: 'center', color: '#276749', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.6' }}>
+                      BADAN AMIL<br />ZAKAT<br />MASJID AL-IKHLAS<br />KEBON BARU
                     </div>
-                  )}
-                  <div style={{ fontSize: '9px', color: '#666', marginTop: '8px' }}>www.masjidalikhas.or.id</div>
+                    {qrDataUrl && (
+                      <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                        <img src={qrDataUrl} alt="QR Verifikasi" style={{ width: '90px', height: '90px' }} />
+                        <div style={{ fontSize: '9px', color: '#666', marginTop: '6px' }}>Scan untuk verifikasi</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'center', fontSize: '12px', marginTop: '12px' }}>
+                    <div>Jakarta, {dateStr}</div>
+                    <div style={{ marginTop: '4px' }}>Penerima,</div>
+                    <div style={{ marginTop: '30px', fontWeight: 'bold', borderBottom: '1px solid #000', display: 'inline-block', paddingBottom: '2px', fontSize: '13px' }}>
+                      {data.penerima || '(                    )'}
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#666', marginTop: '10px' }}>www.masjidalikhas.or.id</div>
+                  </div>
                 </div>
 
                 {/* Kolom Kanan - Konten */}
