@@ -110,6 +110,24 @@ const FitrahFields = memo(function FitrahFields({
             </div>
           )}
 
+          {/* Nama Anggota Jiwa */}
+          {jiwa > 1 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Nama Anggota Jiwa</Label>
+              <p className="text-xs text-muted-foreground">Nama Muzakki otomatis dihitung sebagai jiwa pertama</p>
+              {Array.from({ length: jiwa - 1 }, (_, i) => (
+                <div key={i}>
+                  <Label className="text-xs text-muted-foreground">Nama Anggota Jiwa {i + 1}</Label>
+                  <Input
+                    placeholder={`Nama anggota jiwa ${i + 1}`}
+                    value={fitrah.nama_anggota_jiwa[i] || ''}
+                    onChange={e => onAnggotaChange(i, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="rounded-md bg-muted p-3 text-sm space-y-1">
             {fitrah.metode === 'beras' ? (
               <>
