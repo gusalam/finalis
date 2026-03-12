@@ -15,6 +15,7 @@ export interface DetailZakatItem {
   jumlah_jiwa: number;
   metode_pembayaran?: string | null;
   harga_beras_per_liter?: number | null;
+  nama_anggota_jiwa?: string[] | null;
 }
 
 export interface KwitansiData {
