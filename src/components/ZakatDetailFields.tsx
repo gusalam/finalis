@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 export type MetodePembayaran = 'beras' | 'uang';
 
 export interface DetailForm {
-  fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string };
+  fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string; nama_anggota_jiwa: string[] };
   mal: { enabled: boolean; jumlah_uang: string };
   infaq: { enabled: boolean; jumlah_uang: string };
   fidyah: { enabled: boolean; jumlah_uang: string; jumlah_beras: string; jumlah_jiwa: string; metode: MetodePembayaran; harga_beras_per_liter: string };
