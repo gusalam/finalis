@@ -132,25 +132,28 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     };
 
     drawInfoRow('No. Kwitansi', data.receipt_number || String(data.nomor), true, 14);
-    drawInfoRow('Nama Muzakki', data.nama_muzakki, true, 15);
+    // Calculate total jiwa for muzakki label
+    const totalJiwaAll = data.details.reduce((s, d) => s + (d.jumlah_jiwa || 0), 0);
+    const muzakkiLabel = totalJiwaAll > 1 ? `${data.nama_muzakki} (${totalJiwaAll} Jiwa)` : data.nama_muzakki;
+    drawInfoRow('Nama Muzakki', muzakkiLabel, true, 15);
     if (data.status_muzakki) drawInfoRow('Status', data.status_muzakki);
     if (data.rt_nama) drawInfoRow('RT', data.rt_nama);
     if (data.alamat_muzakki) drawInfoRow('Alamat', data.alamat_muzakki, false);
 
-    // Anggota Jiwa
+    // Anggota Jiwa - comma separated
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
     const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
     if (anggota && anggota.length > 0) {
+      const semuaAnggota = [data.nama_muzakki, ...anggota].join(', ');
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
-      doc.text('Anggota Jiwa', labelX, y);
+      doc.text('Anggota', labelX, y);
       doc.text(':', colonX, y);
-      anggota.forEach((nama, i) => {
-        doc.setFont('helvetica', 'normal');
-        doc.text(`${i + 1}. ${nama}`, valX, y);
-        y += 6;
-      });
+      doc.setFontSize(12);
+      const splitAnggota = doc.splitTextToSize(semuaAnggota, contentW - 50);
+      doc.text(splitAnggota, valX, y);
+      y += splitAnggota.length * 5;
     }
 
     y += 4;

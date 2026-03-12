@@ -206,7 +206,7 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         <tr>
                           <td style={{ padding: '3px 0' }}>Nama Muzakki</td>
                           <td>:</td>
-                          <td><strong style={{ fontSize: '17px' }}>{data.nama_muzakki}</strong></td>
+                          <td><strong style={{ fontSize: '17px' }}>{data.nama_muzakki}{totalJiwa > 1 ? ` (${totalJiwa} Jiwa)` : ''}</strong></td>
                         </tr>
                         {data.status_muzakki && (
                           <tr>
@@ -234,15 +234,12 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                           const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
                           const anggota = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim());
                           if (!anggota || anggota.length === 0) return null;
+                          const semuaAnggota = [data.nama_muzakki, ...anggota].join(', ');
                           return (
                             <tr>
-                              <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota Jiwa</td>
+                              <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota</td>
                               <td style={{ verticalAlign: 'top' }}>:</td>
-                              <td>
-                                {anggota.map((nama, i) => (
-                                  <div key={i}>{i + 1}. {nama}</div>
-                                ))}
-                              </td>
+                              <td style={{ fontSize: '14px' }}>{semuaAnggota}</td>
                             </tr>
                           );
                         })()}
