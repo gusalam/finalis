@@ -196,18 +196,18 @@ const FidyahFields = memo(function FidyahFields({
   fidyah,
   onToggle,
   onFieldChange,
+  onAnggotaChange,
   idPrefix,
 }: {
   fidyah: DetailForm['fidyah'];
   onToggle: (v: boolean) => void;
   onFieldChange: (field: string, value: string) => void;
+  onAnggotaChange: (index: number, value: string) => void;
   idPrefix: string;
 }) {
   const jiwa = Number(fidyah.jumlah_jiwa) || 0;
   const totalLiter = jiwa * LITER_PER_JIWA;
   const harga = Number(fidyah.harga_beras_per_liter) || 0;
-  const uangDibayar = Number(fidyah.jumlah_uang) || 0;
-  const setaraLiter = harga > 0 ? uangDibayar / harga : 0;
 
   return (
     <div className="space-y-3">
@@ -267,6 +267,24 @@ const FidyahFields = memo(function FidyahFields({
                 readOnly
                 className="bg-muted cursor-not-allowed"
               />
+            </div>
+          )}
+
+          {/* Nama Anggota Jiwa */}
+          {jiwa > 1 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Nama Anggota Jiwa</Label>
+              <p className="text-xs text-muted-foreground">Nama Muzakki otomatis dihitung sebagai jiwa pertama</p>
+              {Array.from({ length: jiwa - 1 }, (_, i) => (
+                <div key={i}>
+                  <Label className="text-xs text-muted-foreground">Nama Anggota Jiwa {i + 1}</Label>
+                  <Input
+                    placeholder={`Nama anggota jiwa ${i + 1}`}
+                    value={fidyah.nama_anggota_jiwa[i] || ''}
+                    onChange={e => onAnggotaChange(i, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           )}
 
