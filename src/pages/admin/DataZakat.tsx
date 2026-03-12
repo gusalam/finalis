@@ -146,7 +146,7 @@ export default function DataZakat() {
     nomor: t.nomor_kwitansi || 0, receipt_number: t.receipt_number || undefined, nama_muzakki: t.nama_muzakki,
     status_muzakki: t.status_muzakki || undefined, rt_nama: t.rt?.nama_rt || undefined,
     alamat_muzakki: t.alamat_muzakki || undefined,
-    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null })),
+    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null, nama_anggota_jiwa: Array.isArray(d.nama_anggota_jiwa) ? d.nama_anggota_jiwa : null })),
     tanggal: t.tanggal, penerima: getCreatorName(t),
   });
 
