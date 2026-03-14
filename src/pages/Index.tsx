@@ -11,6 +11,7 @@ import SplashScreen from '@/components/SplashScreen';
 import AnimatedStatCard from '@/components/AnimatedStatCard';
 import { useAnimationLoop } from '@/hooks/useAnimationLoop';
 import InfiniteTickerList from '@/components/InfiniteTickerList';
+import HadisSlider from '@/components/HadisSlider';
 
 const SPLASH_KEY = 'zakat-splash-shown';
 
