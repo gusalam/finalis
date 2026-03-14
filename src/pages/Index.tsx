@@ -185,7 +185,6 @@ export default function Index() {
           </div>
           <RealtimeClock />
         </div>
-        </div>
 
         <HadisSlider />
 
