@@ -182,6 +182,8 @@ export default function Index() {
           <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
         </div>
 
+        <HadisSlider />
+
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {[
             { label: 'Zakat Fitrah', value: stats.totalFitrah, icon: Banknote, color: 'text-primary', isCurrency: true },
