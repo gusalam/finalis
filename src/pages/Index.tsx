@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -12,6 +12,19 @@ import AnimatedStatCard from '@/components/AnimatedStatCard';
 import { useAnimationLoop } from '@/hooks/useAnimationLoop';
 import InfiniteTickerList from '@/components/InfiniteTickerList';
 import HadisSlider from '@/components/HadisSlider';
+
+function RealtimeClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="tabular-nums font-semibold text-foreground">
+      {time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </span>
+  );
+}
 
 const SPLASH_KEY = 'zakat-splash-shown';
 
@@ -27,6 +40,7 @@ export default function Index() {
   const [rtChartData, setRtChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [clock, setClock] = useState(() => new Date());
 
   // Search state
   const [zakatSearch, setZakatSearch] = useState('');
@@ -178,8 +192,11 @@ export default function Index() {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
-          <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
+        <div className="flex items-center justify-between text-sm md:text-base text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
+          </div>
+          <RealtimeClock />
         </div>
 
         <HadisSlider />
