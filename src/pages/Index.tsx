@@ -166,10 +166,10 @@ export default function Index() {
       <header className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3 md:gap-4">
-            <img src={logo} alt="Logo Masjid Al-Ikhlas" className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary-foreground/20 p-1 flex-shrink-0" />
+            <img src={logo} alt="Logo Masjid Al-Ikhlas Kebon Baru" loading="lazy" className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary-foreground/20 p-1 flex-shrink-0" />
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold leading-tight">Sistem Zakat Masjid Al-Ikhlas</h1>
-              <p className="text-sm sm:text-base md:text-lg opacity-90 mt-0.5">Transparansi Zakat Online — Ramadhan 1447H</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif font-bold leading-tight">Masjid Al-Ikhlas Kebon Baru</h1>
+              <h2 className="text-sm sm:text-base md:text-lg opacity-90 mt-0.5 font-serif">Sistem Pengelolaan Zakat Digital</h2>
             </div>
           </div>
           <Link to="/login" className="hidden md:inline-flex px-4 py-2 rounded-lg bg-secondary text-secondary-foreground font-semibold hover:opacity-90 transition text-base">Login Panitia</Link>
