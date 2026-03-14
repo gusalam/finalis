@@ -27,6 +27,7 @@ export default function Index() {
   const [rtChartData, setRtChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [clock, setClock] = useState(() => new Date());
 
   // Search state
   const [zakatSearch, setZakatSearch] = useState('');
