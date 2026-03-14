@@ -11,6 +11,7 @@ import SplashScreen from '@/components/SplashScreen';
 import AnimatedStatCard from '@/components/AnimatedStatCard';
 import { useAnimationLoop } from '@/hooks/useAnimationLoop';
 import InfiniteTickerList from '@/components/InfiniteTickerList';
+import HadisSlider from '@/components/HadisSlider';
 
 const SPLASH_KEY = 'zakat-splash-shown';
 
@@ -180,6 +181,8 @@ export default function Index() {
         <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
           <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
         </div>
+
+        <HadisSlider />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {[
