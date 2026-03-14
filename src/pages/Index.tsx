@@ -13,6 +13,19 @@ import { useAnimationLoop } from '@/hooks/useAnimationLoop';
 import InfiniteTickerList from '@/components/InfiniteTickerList';
 import HadisSlider from '@/components/HadisSlider';
 
+function RealtimeClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="tabular-nums font-semibold text-foreground">
+      {time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </span>
+  );
+}
+
 const SPLASH_KEY = 'zakat-splash-shown';
 
 const COLORS = ['hsl(152, 55%, 28%)', 'hsl(42, 80%, 55%)', 'hsl(200, 70%, 50%)', 'hsl(0, 72%, 51%)'];
