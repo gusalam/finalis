@@ -179,8 +179,12 @@ export default function Index() {
       </header>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
-          <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
+        <div className="flex items-center justify-between text-sm md:text-base text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 md:w-5 md:h-5" /><span>Data diperbarui: {fmtDate(lastUpdated)}</span>
+          </div>
+          <RealtimeClock />
+        </div>
         </div>
 
         <HadisSlider />
