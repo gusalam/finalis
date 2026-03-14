@@ -16,6 +16,10 @@ export default function VerifikasiKwitansi() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    document.title = 'Verifikasi Kwitansi Zakat Masjid Al-Ikhlas Kebon Baru';
+  }, []);
+
+  useEffect(() => {
     async function fetch() {
       if (!receiptNumber) { setNotFound(true); setLoading(false); return; }
 
