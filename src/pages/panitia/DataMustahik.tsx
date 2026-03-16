@@ -20,7 +20,7 @@ import PaginationControls from '@/components/PaginationControls';
 
 const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Gharimin', 'Muallaf', 'Sabilillah', 'Amil', 'Riqab', 'Ibnu Sabil'];
 
-const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT' };
+const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT', jumlah_tanggungan: '' };
 
 export default function PanitiaMustahik() {
   const { user } = useAuth();
@@ -58,12 +58,16 @@ export default function PanitiaMustahik() {
     if (!form.kategori) { toast.error('Kategori wajib dipilih'); return; }
     if (form.status === 'RT' && !form.rt_id) { toast.error('RT wajib dipilih jika status RT'); return; }
 
+    const tanggungan = parseInt(String(form.jumlah_tanggungan), 10);
+    if (isNaN(tanggungan) || tanggungan < 0) { toast.error('Jumlah tanggungan tidak valid (minimal 0)'); return; }
+
     const payload: any = {
       nama: form.nama.trim(),
       rt_id: form.rt_id || null,
       kategori: form.kategori || null,
       alamat: form.alamat.trim() || null,
       status: form.status,
+      jumlah_tanggungan: tanggungan,
       ...(editItem ? {} : { created_by: user?.id }),
     };
 
@@ -88,7 +92,7 @@ export default function PanitiaMustahik() {
 
   const openEdit = (m: any) => {
     setEditItem(m);
-    setForm({ nama: m.nama, rt_id: m.rt_id || '', kategori: m.kategori || '', alamat: m.alamat || '', status: m.status || 'RT' });
+    setForm({ nama: m.nama, rt_id: m.rt_id || '', kategori: m.kategori || '', alamat: m.alamat || '', status: m.status || 'RT', jumlah_tanggungan: String(m.jumlah_tanggungan ?? 0) });
     setOpen(true);
   };
 
@@ -131,6 +135,7 @@ export default function PanitiaMustahik() {
               <SelectContent>{KATEGORI_OPTIONS.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          <div><Label>Jumlah Tanggungan Keluarga <span className="text-destructive">*</span></Label><Input type="number" min={0} value={form.jumlah_tanggungan} onChange={e => setForm({ ...form, jumlah_tanggungan: e.target.value })} placeholder="Contoh: 3" /></div>
           <Button onClick={handleSubmit} className="w-full">{editItem ? 'Simpan' : 'Tambah'}</Button>
         </div>
       </DialogContent>
@@ -180,7 +185,7 @@ export default function PanitiaMustahik() {
       <Card className="hidden md:block">
         <CardContent className="overflow-auto p-0">
           <Table>
-            <TableHeader><TableRow><TableHead>Nama</TableHead><TableHead>Status</TableHead><TableHead>RT</TableHead><TableHead>Kategori</TableHead><TableHead>Alamat</TableHead><TableHead>Aksi</TableHead></TableRow></TableHeader>
+            <TableHeader><TableRow><TableHead>Nama</TableHead><TableHead>Status</TableHead><TableHead>RT</TableHead><TableHead>Kategori</TableHead><TableHead>Tanggungan</TableHead><TableHead>Alamat</TableHead><TableHead>Aksi</TableHead></TableRow></TableHeader>
             <TableBody>
               {data.map(m => (
                 <TableRow key={m.id}>
@@ -188,6 +193,7 @@ export default function PanitiaMustahik() {
                   <TableCell>{m.status || '-'}</TableCell>
                   <TableCell>{m.rt?.nama_rt || '-'}</TableCell>
                   <TableCell>{m.kategori || '-'}</TableCell>
+                  <TableCell>{m.jumlah_tanggungan ?? 0} Orang</TableCell>
                   <TableCell>{m.alamat || '-'}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
@@ -223,6 +229,7 @@ export default function PanitiaMustahik() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div><span className="text-muted-foreground">Status:</span> <span className="font-medium">{m.status || '-'}</span></div>
                 <div><span className="text-muted-foreground">RT:</span> <span className="font-medium">{m.rt?.nama_rt || '-'}</span></div>
+                <div><span className="text-muted-foreground">Tanggungan:</span> <span className="font-medium">{m.jumlah_tanggungan ?? 0} Orang</span></div>
               </div>
               {m.alamat && <p className="text-sm text-muted-foreground">{m.alamat}</p>}
             </CardContent>
