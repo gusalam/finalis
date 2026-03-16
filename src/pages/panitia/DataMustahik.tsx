@@ -229,6 +229,7 @@ export default function PanitiaMustahik() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div><span className="text-muted-foreground">Status:</span> <span className="font-medium">{m.status || '-'}</span></div>
                 <div><span className="text-muted-foreground">RT:</span> <span className="font-medium">{m.rt?.nama_rt || '-'}</span></div>
+                <div><span className="text-muted-foreground">Tanggungan:</span> <span className="font-medium">{m.jumlah_tanggungan ?? 0} Orang</span></div>
               </div>
               {m.alamat && <p className="text-sm text-muted-foreground">{m.alamat}</p>}
             </CardContent>
