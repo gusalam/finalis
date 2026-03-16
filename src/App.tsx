@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import DataZakat from "./pages/admin/DataZakat";
 import DataMustahik from "./pages/admin/DataMustahik";
 import AdminDistribusi from "./pages/admin/Distribusi";
+import DistribusiZakat from "./pages/admin/DistribusiZakat";
 import Laporan from "./pages/admin/Laporan";
 import KelolaRT from "./pages/admin/KelolaRT";
 import KelolaPanitia from "./pages/admin/KelolaPanitia";
