@@ -20,7 +20,7 @@ import PaginationControls from '@/components/PaginationControls';
 
 const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Gharimin', 'Muallaf', 'Sabilillah', 'Amil', 'Riqab', 'Ibnu Sabil'];
 
-const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT' };
+const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT', jumlah_tanggungan: '' };
 
 export default function PanitiaMustahik() {
   const { user } = useAuth();
