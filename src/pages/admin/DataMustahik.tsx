@@ -114,8 +114,8 @@ export default function DataMustahik() {
           <Button variant="outline" size="sm" onClick={() => exportPdf({
             title: 'Data Mustahik — Masjid Al-Ikhlas',
             subtitle: `Dicetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-            headers: ['No', 'Nama', 'Status', 'RT', 'Kategori', 'Alamat'],
-            rows: data.map((m, i) => [String(i + 1), m.nama, m.status || '-', m.rt?.nama_rt || '-', m.kategori || '-', m.alamat || '-']),
+            headers: ['No', 'Nama', 'Status', 'RT', 'Kategori', 'Tanggungan', 'Alamat'],
+            rows: data.map((m, i) => [String(i + 1), m.nama, m.status || '-', m.rt?.nama_rt || '-', m.kategori || '-', `${m.jumlah_tanggungan ?? 0} Orang`, m.alamat || '-']),
             filename: 'Data_Mustahik_Al_Ikhlas.pdf',
           })}><FileText className="w-4 h-4 mr-1" />Export PDF</Button>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) resetForm(); }}>
