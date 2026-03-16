@@ -90,7 +90,7 @@ export default function DataMustahik() {
 
   const openEdit = (m: any) => {
     setEditItem(m);
-    setForm({ nama: m.nama, rt_id: m.rt_id || '', kategori: m.kategori || '', alamat: m.alamat || '', status: m.status || 'RT' });
+    setForm({ nama: m.nama, rt_id: m.rt_id || '', kategori: m.kategori || '', alamat: m.alamat || '', status: m.status || 'RT', jumlah_tanggungan: String(m.jumlah_tanggungan ?? 0) });
     setOpen(true);
   };
 
