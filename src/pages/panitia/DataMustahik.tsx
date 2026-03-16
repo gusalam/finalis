@@ -135,6 +135,7 @@ export default function PanitiaMustahik() {
               <SelectContent>{KATEGORI_OPTIONS.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          <div><Label>Jumlah Tanggungan Keluarga <span className="text-destructive">*</span></Label><Input type="number" min={0} value={form.jumlah_tanggungan} onChange={e => setForm({ ...form, jumlah_tanggungan: e.target.value })} placeholder="Contoh: 3" /></div>
           <Button onClick={handleSubmit} className="w-full">{editItem ? 'Simpan' : 'Tambah'}</Button>
         </div>
       </DialogContent>
