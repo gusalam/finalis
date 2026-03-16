@@ -102,6 +102,44 @@ export type Database = {
           },
         ]
       }
+      distribusi_zakat: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          jatah_beras: number
+          mustahik_id: string
+          tanggal_distribusi: string
+          total_jiwa: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          jatah_beras?: number
+          mustahik_id: string
+          tanggal_distribusi?: string
+          total_jiwa?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          jatah_beras?: number
+          mustahik_id?: string
+          tanggal_distribusi?: string
+          total_jiwa?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distribusi_zakat_mustahik_id_fkey"
+            columns: ["mustahik_id"]
+            isOneToOne: false
+            referencedRelation: "mustahik"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mustahik: {
         Row: {
           alamat: string | null
