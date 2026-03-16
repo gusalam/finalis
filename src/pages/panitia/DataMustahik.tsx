@@ -58,12 +58,16 @@ export default function PanitiaMustahik() {
     if (!form.kategori) { toast.error('Kategori wajib dipilih'); return; }
     if (form.status === 'RT' && !form.rt_id) { toast.error('RT wajib dipilih jika status RT'); return; }
 
+    const tanggungan = parseInt(String(form.jumlah_tanggungan), 10);
+    if (isNaN(tanggungan) || tanggungan < 0) { toast.error('Jumlah tanggungan tidak valid (minimal 0)'); return; }
+
     const payload: any = {
       nama: form.nama.trim(),
       rt_id: form.rt_id || null,
       kategori: form.kategori || null,
       alamat: form.alamat.trim() || null,
       status: form.status,
+      jumlah_tanggungan: tanggungan,
       ...(editItem ? {} : { created_by: user?.id }),
     };
 
