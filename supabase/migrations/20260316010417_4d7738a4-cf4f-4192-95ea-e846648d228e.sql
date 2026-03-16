@@ -1,0 +1,1 @@
+ALTER TABLE public.mustahik ADD COLUMN jumlah_tanggungan integer NOT NULL DEFAULT 0 CHECK (jumlah_tanggungan >= 0);
