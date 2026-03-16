@@ -193,6 +193,7 @@ export default function PanitiaMustahik() {
                   <TableCell>{m.status || '-'}</TableCell>
                   <TableCell>{m.rt?.nama_rt || '-'}</TableCell>
                   <TableCell>{m.kategori || '-'}</TableCell>
+                  <TableCell>{m.jumlah_tanggungan ?? 0} Orang</TableCell>
                   <TableCell>{m.alamat || '-'}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
