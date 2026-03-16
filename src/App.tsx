@@ -44,6 +44,7 @@ const App = () => (
             <Route path="/admin/zakat" element={<ProtectedRoute allowedRoles={['admin']}><DataZakat /></ProtectedRoute>} />
             <Route path="/admin/mustahik" element={<ProtectedRoute allowedRoles={['admin']}><DataMustahik /></ProtectedRoute>} />
             <Route path="/admin/distribusi" element={<ProtectedRoute allowedRoles={['admin']}><AdminDistribusi /></ProtectedRoute>} />
+            <Route path="/admin/distribusi-zakat" element={<ProtectedRoute allowedRoles={['admin']}><DistribusiZakat /></ProtectedRoute>} />
             <Route path="/admin/laporan" element={<ProtectedRoute allowedRoles={['admin']}><Laporan /></ProtectedRoute>} />
             <Route path="/admin/rt" element={<ProtectedRoute allowedRoles={['admin']}><KelolaRT /></ProtectedRoute>} />
             <Route path="/admin/panitia" element={<ProtectedRoute allowedRoles={['admin']}><KelolaPanitia /></ProtectedRoute>} />

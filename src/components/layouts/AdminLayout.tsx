@@ -12,6 +12,7 @@ const menuItems = [
   { path: '/admin/zakat', label: 'Data Zakat', icon: FileText },
   { path: '/admin/mustahik', label: 'Data Mustahik', icon: Users },
   { path: '/admin/distribusi', label: 'Distribusi', icon: Truck },
+  { path: '/admin/distribusi-zakat', label: 'Distribusi Zakat', icon: BarChart3 },
   { path: '/admin/laporan', label: 'Laporan', icon: BarChart3 },
   { path: '/admin/rt', label: 'Kelola RT', icon: MapPin },
   { path: '/admin/panitia', label: 'Kelola Panitia', icon: UserPlus },
