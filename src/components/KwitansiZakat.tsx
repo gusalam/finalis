@@ -105,9 +105,11 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
   const totalBeras = payments.reduce((s, p) => {
     if (!p.detail) return s;
     const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-    if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
-      const jiwa = p.detail.jumlah_jiwa || 0;
-      return s + (jiwa * LITER_PER_JIWA);
+    if (p.name === 'Zakat Fitrah' && metode === 'beras') {
+      return s + ((p.detail.jumlah_jiwa || 0) * LITER_PER_JIWA);
+    }
+    if (p.name === 'Fidyah' && metode === 'beras') {
+      return s + (p.detail.jumlah_beras || 0);
     }
     return s;
   }, 0);
@@ -117,12 +119,13 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
   const berasEquivalent = payments.reduce((s, p) => {
     if (!p.detail) return s;
     const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-    if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
+    if (p.name === 'Zakat Fitrah' && metode === 'beras') {
       const jiwa = p.detail.jumlah_jiwa || 0;
       const totalLiter = jiwa * LITER_PER_JIWA;
       const harga = p.detail.harga_beras_per_liter || 0;
       return s + (totalLiter * harga);
     }
+    // Fidyah beras has no harga_beras_per_liter, so no monetary equivalent
     return s;
   }, 0);
   const grandTotal = totalUang + berasEquivalent;
