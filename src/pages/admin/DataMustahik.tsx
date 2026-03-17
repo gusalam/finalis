@@ -111,6 +111,7 @@ export default function DataMustahik() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h1 className="text-xl md:text-2xl font-serif font-bold">Data Mustahik</h1>
           <div className="flex gap-2 flex-wrap items-center">
+            <ImportMustahik onImportDone={fetchData} />
             <SearchInput placeholder="Cari nama mustahik..." value={search} onChange={v => { setSearch(v); pag.goTo(1); }} className="w-48 sm:w-64" />
           <Button variant="outline" size="sm" onClick={() => exportPdf({
             title: 'Data Mustahik — Masjid Al-Ikhlas',
