@@ -184,7 +184,8 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     y += 8;
 
     const entries = getPaymentEntries(data.details);
-    const fitrahFidyah = entries.filter(e => e.detail && (e.name === 'Zakat Fitrah' || e.name === 'Fidyah'));
+    const fitrahFidyah = entries.filter(e => e.detail && e.name === 'Zakat Fitrah');
+    const fidyahEntries = entries.filter(e => e.detail && e.name === 'Fidyah');
     const others = entries.filter(e => e.detail && e.name !== 'Zakat Fitrah' && e.name !== 'Fidyah');
 
     let totalUang = 0;
