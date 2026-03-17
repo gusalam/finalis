@@ -359,12 +359,12 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y += 8;
     }
 
-    // Calculate beras equivalent for terbilang
+    // Calculate beras equivalent for terbilang (Fitrah only)
     let berasEquivalent = 0;
     entries.forEach(p => {
       if (!p.detail) return;
       const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-      if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
+      if (p.name === 'Zakat Fitrah' && metode === 'beras') {
         const jiwa = p.detail.jumlah_jiwa || 0;
         const totalLiter = jiwa * LITER_PER_JIWA;
         const harga = p.detail.harga_beras_per_liter || 0;
