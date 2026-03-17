@@ -157,14 +157,11 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     if (data.rt_nama) drawInfoRow('RT', data.rt_nama);
     if (data.alamat_muzakki) drawInfoRow('Alamat', data.alamat_muzakki, false);
 
-    // Anggota Jiwa - comma separated (from Fitrah and Fidyah)
+    // Anggota Jiwa - from Fitrah only
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-    const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
     const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-    const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-    const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
-    if (allAnggota.length > 0) {
-      const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
+    if (anggotaFitrah.length > 0) {
+      const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
