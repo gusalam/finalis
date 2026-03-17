@@ -274,11 +274,11 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         Untuk Pembayaran :
                       </div>
 
-                      {/* Fitrah/Fidyah in grid */}
-                      {fitrahFidyahPayments.length > 0 && (
-                        <div style={{ display: 'grid', gridTemplateColumns: fitrahFidyahPayments.length > 1 ? '1fr 1fr' : '1fr', gap: '12px', marginBottom: '8px' }}>
-                          {fitrahFidyahPayments.map(p => {
-                            const info = renderFitrahFidyahInfo(p.detail!);
+                      {/* Zakat Fitrah */}
+                      {fitrahPayments.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '8px' }}>
+                          {fitrahPayments.map(p => {
+                            const info = renderFitrahInfo(p.detail!);
                             return (
                               <div key={p.no} style={{ border: '1px solid #ddd', padding: '10px 12px', borderRadius: '4px' }}>
                                 <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' }}>
@@ -294,6 +294,25 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                           })}
                         </div>
                       )}
+
+                      {/* Fidyah - simple display */}
+                      {fidyahPayments.length > 0 && fidyahPayments.map(p => {
+                        const info = renderFidyahInfo(p.detail!);
+                        return (
+                          <div key={p.no} style={{ marginBottom: '8px' }}>
+                            <table style={{ width: '100%', fontSize: '15px', borderCollapse: 'collapse' }}>
+                              <tbody>
+                                <tr>
+                                  <td style={{ width: '24px', padding: '4px 0' }}>{p.no}.</td>
+                                  <td style={{ width: '120px' }}>Fidyah</td>
+                                  <td style={{ width: '60px' }}>{info.label === '(Beras)' ? 'Beras :' : 'Uang :'}</td>
+                                  <td style={{ fontWeight: 'bold', fontSize: '16px' }}>{info.amount}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })}
 
                       {/* Other payments */}
                       {otherPayments.length > 0 && (
