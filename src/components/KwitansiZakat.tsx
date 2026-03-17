@@ -164,7 +164,8 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
 
   // Filter active payments for grid display
   const activePayments = payments.filter(p => p.detail);
-  const fitrahFidyahPayments = activePayments.filter(p => p.name === 'Zakat Fitrah' || p.name === 'Fidyah');
+  const fitrahPayments = activePayments.filter(p => p.name === 'Zakat Fitrah');
+  const fidyahPayments = activePayments.filter(p => p.name === 'Fidyah');
   const otherPayments = activePayments.filter(p => p.name !== 'Zakat Fitrah' && p.name !== 'Fidyah');
 
   return (
