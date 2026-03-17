@@ -132,7 +132,7 @@ export default function DataZakat() {
       if (det.jenis_zakat === 'Zakat Fitrah') { d.fitrah = { enabled: true, jumlah_jiwa: String(det.jumlah_jiwa || 1), jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || ''), nama_anggota_jiwa: Array.isArray(det.nama_anggota_jiwa) ? det.nama_anggota_jiwa : [] }; }
       if (det.jenis_zakat === 'Zakat Mal') d.mal = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
       if (det.jenis_zakat === 'Infaq' || det.jenis_zakat === 'Shodaqoh') d.infaq = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
-      if (det.jenis_zakat === 'Fidyah') d.fidyah = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), jumlah_jiwa: String(det.jumlah_jiwa || 1), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || ''), nama_anggota_jiwa: Array.isArray(det.nama_anggota_jiwa) ? det.nama_anggota_jiwa : [] };
+      if (det.jenis_zakat === 'Fidyah') d.fidyah = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any };
     });
     setDetail(d);
     setOpen(true);
