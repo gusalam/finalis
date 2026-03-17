@@ -17,8 +17,9 @@ import { exportPdf } from '@/lib/exportPdf';
 import { friendlyError } from '@/lib/errorHandler';
 import { usePagination } from '@/hooks/usePagination';
 import PaginationControls from '@/components/PaginationControls';
+import ImportMustahik from '@/components/ImportMustahik';
 
-const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Gharimin', 'Muallaf', 'Sabilillah', 'Amil', 'Riqab', 'Ibnu Sabil'];
+const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Amil', 'Mualaf', 'Riqab', 'Gharimin', 'Fisabilillah', 'Ibnu Sabil'];
 
 const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT', jumlah_tanggungan: '' };
 
