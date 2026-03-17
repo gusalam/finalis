@@ -288,6 +288,31 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y = startY + maxBoxH + 4;
     }
 
+    // Fidyah entries - simple display like other payments
+    fidyahEntries.forEach(p => {
+      const d = p.detail!;
+      const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(13);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${p.no}.`, labelX + 2, y);
+      doc.text('Fidyah', labelX + 10, y);
+      if (metode === 'beras') {
+        doc.text('Beras :', labelX + 48, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text(`${d.jumlah_beras} Liter`, labelX + 64, y);
+        totalBeras += d.jumlah_beras;
+      } else {
+        doc.text('Uang :', labelX + 48, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text(`Rp ${fmt(d.jumlah_uang)}`, labelX + 64, y);
+        totalUang += d.jumlah_uang;
+      }
+      y += 7;
+    });
+
     // Other payments
     others.forEach(p => {
       doc.setFont('helvetica', 'normal');
