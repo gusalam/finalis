@@ -74,16 +74,12 @@ export default function DataZakat() {
     if (detail.mal.enabled) items.push({ jenis_zakat: 'Zakat Mal', jumlah_uang: Number(detail.mal.jumlah_uang) || 0, jumlah_beras: 0, jumlah_jiwa: 0 });
     if (detail.infaq.enabled) items.push({ jenis_zakat: 'Infaq', jumlah_uang: Number(detail.infaq.jumlah_uang) || 0, jumlah_beras: 0, jumlah_jiwa: 0 });
     if (detail.fidyah.enabled) {
-      const jiwa = Number(detail.fidyah.jumlah_jiwa) || 1;
       const metode = detail.fidyah.metode;
-      const harga = Number(detail.fidyah.harga_beras_per_liter) || 0;
-      const namaAnggotaFidyah = detail.fidyah.nama_anggota_jiwa.filter(n => n.trim());
       items.push({
-        jenis_zakat: 'Fidyah', jumlah_jiwa: jiwa,
-        jumlah_uang: metode === 'uang' ? jiwa * LITER_PER_JIWA * harga : 0,
-        jumlah_beras: metode === 'beras' ? jiwa * LITER_PER_JIWA : 0,
-        metode_pembayaran: metode, harga_beras_per_liter: harga || null,
-        nama_anggota_jiwa: namaAnggotaFidyah.length > 0 ? namaAnggotaFidyah : null,
+        jenis_zakat: 'Fidyah', jumlah_jiwa: 0,
+        jumlah_uang: metode === 'uang' ? Number(detail.fidyah.jumlah_uang) || 0 : 0,
+        jumlah_beras: metode === 'beras' ? Number(detail.fidyah.jumlah_beras) || 0 : 0,
+        metode_pembayaran: metode,
       });
     }
     return items;
@@ -136,7 +132,7 @@ export default function DataZakat() {
       if (det.jenis_zakat === 'Zakat Fitrah') { d.fitrah = { enabled: true, jumlah_jiwa: String(det.jumlah_jiwa || 1), jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || ''), nama_anggota_jiwa: Array.isArray(det.nama_anggota_jiwa) ? det.nama_anggota_jiwa : [] }; }
       if (det.jenis_zakat === 'Zakat Mal') d.mal = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
       if (det.jenis_zakat === 'Infaq' || det.jenis_zakat === 'Shodaqoh') d.infaq = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0) };
-      if (det.jenis_zakat === 'Fidyah') d.fidyah = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), jumlah_jiwa: String(det.jumlah_jiwa || 1), metode: metode as any, harga_beras_per_liter: String(det.harga_beras_per_liter || ''), nama_anggota_jiwa: Array.isArray(det.nama_anggota_jiwa) ? det.nama_anggota_jiwa : [] };
+      if (det.jenis_zakat === 'Fidyah') d.fidyah = { enabled: true, jumlah_uang: String(det.jumlah_uang || 0), jumlah_beras: String(det.jumlah_beras || 0), metode: metode as any };
     });
     setDetail(d);
     setOpen(true);

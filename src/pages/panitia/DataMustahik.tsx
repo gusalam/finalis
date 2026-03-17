@@ -17,8 +17,9 @@ import SearchInput from '@/components/SearchInput';
 import { friendlyError } from '@/lib/errorHandler';
 import { usePagination } from '@/hooks/usePagination';
 import PaginationControls from '@/components/PaginationControls';
+import ImportMustahik from '@/components/ImportMustahik';
 
-const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Gharimin', 'Muallaf', 'Sabilillah', 'Amil', 'Riqab', 'Ibnu Sabil'];
+const KATEGORI_OPTIONS = ['Fakir', 'Miskin', 'Amil', 'Mualaf', 'Riqab', 'Gharimin', 'Fisabilillah', 'Ibnu Sabil'];
 
 const emptyForm = { nama: '', rt_id: '', kategori: '', alamat: '', status: 'RT', jumlah_tanggungan: '' };
 
@@ -157,6 +158,7 @@ export default function PanitiaMustahik() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h1 className="text-xl md:text-2xl font-serif font-bold">Data Mustahik</h1>
           <div className="flex gap-2 flex-wrap items-center">
+            <ImportMustahik createdBy={user?.id} onImportDone={fetchData} />
             <SearchInput placeholder="Cari nama mustahik..." value={search} onChange={v => { setSearch(v); pag.goTo(1); }} className="w-48 sm:w-64" />
             {formDialog}
           </div>

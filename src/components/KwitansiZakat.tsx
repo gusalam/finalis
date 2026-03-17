@@ -50,7 +50,7 @@ function getPaymentRows(details: DetailZakatItem[]) {
   ];
 }
 
-function renderFitrahFidyahInfo(d: DetailZakatItem) {
+function renderFitrahInfo(d: DetailZakatItem) {
   const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
   const jiwa = d.jumlah_jiwa || 0;
   const totalLiter = jiwa * LITER_PER_JIWA;
@@ -78,6 +78,15 @@ function renderFitrahFidyahInfo(d: DetailZakatItem) {
   }
 }
 
+function renderFidyahInfo(d: DetailZakatItem) {
+  const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
+  if (metode === 'beras') {
+    return { label: '(Beras)', amount: `${d.jumlah_beras} Liter Beras` };
+  } else {
+    return { label: '(Uang)', amount: `Rp ${fmt(d.jumlah_uang)}` };
+  }
+}
+
 export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
   const printRef = useRef<HTMLDivElement>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -96,9 +105,11 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
   const totalBeras = payments.reduce((s, p) => {
     if (!p.detail) return s;
     const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-    if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
-      const jiwa = p.detail.jumlah_jiwa || 0;
-      return s + (jiwa * LITER_PER_JIWA);
+    if (p.name === 'Zakat Fitrah' && metode === 'beras') {
+      return s + ((p.detail.jumlah_jiwa || 0) * LITER_PER_JIWA);
+    }
+    if (p.name === 'Fidyah' && metode === 'beras') {
+      return s + (p.detail.jumlah_beras || 0);
     }
     return s;
   }, 0);
@@ -108,12 +119,13 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
   const berasEquivalent = payments.reduce((s, p) => {
     if (!p.detail) return s;
     const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-    if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
+    if (p.name === 'Zakat Fitrah' && metode === 'beras') {
       const jiwa = p.detail.jumlah_jiwa || 0;
       const totalLiter = jiwa * LITER_PER_JIWA;
       const harga = p.detail.harga_beras_per_liter || 0;
       return s + (totalLiter * harga);
     }
+    // Fidyah beras has no harga_beras_per_liter, so no monetary equivalent
     return s;
   }, 0);
   const grandTotal = totalUang + berasEquivalent;
@@ -152,7 +164,8 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
 
   // Filter active payments for grid display
   const activePayments = payments.filter(p => p.detail);
-  const fitrahFidyahPayments = activePayments.filter(p => p.name === 'Zakat Fitrah' || p.name === 'Fidyah');
+  const fitrahPayments = activePayments.filter(p => p.name === 'Zakat Fitrah');
+  const fidyahPayments = activePayments.filter(p => p.name === 'Fidyah');
   const otherPayments = activePayments.filter(p => p.name !== 'Zakat Fitrah' && p.name !== 'Fidyah');
 
   return (
@@ -238,15 +251,12 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                             <td>{data.alamat_muzakki}</td>
                           </tr>
                         )}
-                        {/* Anggota Jiwa from Zakat Fitrah or Fidyah */}
+                        {/* Anggota Jiwa from Zakat Fitrah */}
                         {(() => {
                           const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-                          const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
                           const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-                          const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-                          const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
-                          if (allAnggota.length === 0) return null;
-                          const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
+                          if (anggotaFitrah.length === 0) return null;
+                          const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
                           return (
                             <tr>
                               <td style={{ padding: '3px 0', verticalAlign: 'top' }}>Anggota</td>
@@ -264,11 +274,11 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         Untuk Pembayaran :
                       </div>
 
-                      {/* Fitrah/Fidyah in grid */}
-                      {fitrahFidyahPayments.length > 0 && (
-                        <div style={{ display: 'grid', gridTemplateColumns: fitrahFidyahPayments.length > 1 ? '1fr 1fr' : '1fr', gap: '12px', marginBottom: '8px' }}>
-                          {fitrahFidyahPayments.map(p => {
-                            const info = renderFitrahFidyahInfo(p.detail!);
+                      {/* Zakat Fitrah */}
+                      {fitrahPayments.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '8px' }}>
+                          {fitrahPayments.map(p => {
+                            const info = renderFitrahInfo(p.detail!);
                             return (
                               <div key={p.no} style={{ border: '1px solid #ddd', padding: '10px 12px', borderRadius: '4px' }}>
                                 <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' }}>
@@ -284,6 +294,25 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                           })}
                         </div>
                       )}
+
+                      {/* Fidyah - simple display */}
+                      {fidyahPayments.length > 0 && fidyahPayments.map(p => {
+                        const info = renderFidyahInfo(p.detail!);
+                        return (
+                          <div key={p.no} style={{ marginBottom: '8px' }}>
+                            <table style={{ width: '100%', fontSize: '15px', borderCollapse: 'collapse' }}>
+                              <tbody>
+                                <tr>
+                                  <td style={{ width: '24px', padding: '4px 0' }}>{p.no}.</td>
+                                  <td style={{ width: '120px' }}>Fidyah</td>
+                                  <td style={{ width: '60px' }}>{info.label === '(Beras)' ? 'Beras :' : 'Uang :'}</td>
+                                  <td style={{ fontWeight: 'bold', fontSize: '16px' }}>{info.amount}</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })}
 
                       {/* Other payments */}
                       {otherPayments.length > 0 && (

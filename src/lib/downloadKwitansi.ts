@@ -157,14 +157,11 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     if (data.rt_nama) drawInfoRow('RT', data.rt_nama);
     if (data.alamat_muzakki) drawInfoRow('Alamat', data.alamat_muzakki, false);
 
-    // Anggota Jiwa - comma separated (from Fitrah and Fidyah)
+    // Anggota Jiwa - from Fitrah only
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-    const fidyahDetail = data.details.find(d => d.jenis_zakat === 'Fidyah');
     const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-    const anggotaFidyah = fidyahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
-    const allAnggota = [...anggotaFitrah, ...anggotaFidyah];
-    if (allAnggota.length > 0) {
-      const semuaAnggota = [data.nama_muzakki, ...allAnggota].join(', ');
+    if (anggotaFitrah.length > 0) {
+      const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
@@ -187,7 +184,8 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
     y += 8;
 
     const entries = getPaymentEntries(data.details);
-    const fitrahFidyah = entries.filter(e => e.detail && (e.name === 'Zakat Fitrah' || e.name === 'Fidyah'));
+    const fitrahFidyah = entries.filter(e => e.detail && e.name === 'Zakat Fitrah');
+    const fidyahEntries = entries.filter(e => e.detail && e.name === 'Fidyah');
     const others = entries.filter(e => e.detail && e.name !== 'Zakat Fitrah' && e.name !== 'Fidyah');
 
     let totalUang = 0;
@@ -290,6 +288,31 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y = startY + maxBoxH + 4;
     }
 
+    // Fidyah entries - simple display like other payments
+    fidyahEntries.forEach(p => {
+      const d = p.detail!;
+      const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(13);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${p.no}.`, labelX + 2, y);
+      doc.text('Fidyah', labelX + 10, y);
+      if (metode === 'beras') {
+        doc.text('Beras :', labelX + 48, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text(`${d.jumlah_beras} Liter`, labelX + 64, y);
+        totalBeras += d.jumlah_beras;
+      } else {
+        doc.text('Uang :', labelX + 48, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text(`Rp ${fmt(d.jumlah_uang)}`, labelX + 64, y);
+        totalUang += d.jumlah_uang;
+      }
+      y += 7;
+    });
+
     // Other payments
     others.forEach(p => {
       doc.setFont('helvetica', 'normal');
@@ -336,12 +359,12 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y += 8;
     }
 
-    // Calculate beras equivalent for terbilang
+    // Calculate beras equivalent for terbilang (Fitrah only)
     let berasEquivalent = 0;
     entries.forEach(p => {
       if (!p.detail) return;
       const metode = p.detail.metode_pembayaran || (p.detail.jumlah_beras > 0 ? 'beras' : 'uang');
-      if (metode === 'beras' && (p.name === 'Zakat Fitrah' || p.name === 'Fidyah')) {
+      if (p.name === 'Zakat Fitrah' && metode === 'beras') {
         const jiwa = p.detail.jumlah_jiwa || 0;
         const totalLiter = jiwa * LITER_PER_JIWA;
         const harga = p.detail.harga_beras_per_liter || 0;
