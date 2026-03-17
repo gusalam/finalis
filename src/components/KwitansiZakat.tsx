@@ -50,7 +50,7 @@ function getPaymentRows(details: DetailZakatItem[]) {
   ];
 }
 
-function renderFitrahFidyahInfo(d: DetailZakatItem) {
+function renderFitrahInfo(d: DetailZakatItem) {
   const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
   const jiwa = d.jumlah_jiwa || 0;
   const totalLiter = jiwa * LITER_PER_JIWA;
@@ -75,6 +75,15 @@ function renderFitrahFidyahInfo(d: DetailZakatItem) {
       extra: harga > 0 ? `Setara: ${parseFloat(setaraLiter.toFixed(2))} Liter Beras` : undefined,
       harga: harga > 0 ? `Harga Beras: Rp ${fmt(harga)} / Liter` : undefined,
     };
+  }
+}
+
+function renderFidyahInfo(d: DetailZakatItem) {
+  const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
+  if (metode === 'beras') {
+    return { label: '(Beras)', amount: `${d.jumlah_beras} Liter Beras` };
+  } else {
+    return { label: '(Uang)', amount: `Rp ${fmt(d.jumlah_uang)}` };
   }
 }
 
