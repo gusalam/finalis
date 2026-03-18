@@ -191,7 +191,12 @@ export default function DataZakat() {
       const { error: deleteError } = await supabase.from('detail_zakat').delete().eq('transaksi_id', editItem.id);
       if (deleteError) { toast.error(friendlyError(deleteError)); return; }
 
-      const { error: insertError } = await supabase.from('detail_zakat').insert(items.map(d => ({ transaksi_id: editItem.id, ...d })));
+      const detailRows = items.map(d => ({
+        transaksi_id: editItem.id,
+        ...d,
+        nama_anggota_jiwa: (d.nama_anggota_jiwa ?? null) as any,
+      }));
+      const { error: insertError } = await supabase.from('detail_zakat').insert(detailRows);
       if (insertError) { toast.error(friendlyError(insertError)); return; }
       toast.success('Data zakat berhasil diperbarui ✓');
     } else {
