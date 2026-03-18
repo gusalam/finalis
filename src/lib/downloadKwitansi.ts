@@ -7,7 +7,18 @@ import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
 const fmt = (n: number) => new Intl.NumberFormat('id-ID').format(n);
+const formatDecimal = (n: number) => `${parseFloat(n.toFixed(2))}`;
 const LITER_PER_JIWA = 3.5;
+
+type FidyahStoredMeta = {
+  type: 'fidyah_meta';
+  version?: number;
+  metode?: 'uang' | 'beras';
+  jumlah_hari?: number;
+  harga_makan_per_hari?: number;
+  beras_per_hari?: number;
+  input_manual?: boolean;
+};
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -17,6 +28,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error('Failed to load image'));
     img.src = src;
   });
+}
+
+function readFidyahMeta(value: unknown): FidyahStoredMeta | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || (value as { type?: string }).type !== 'fidyah_meta') {
+    return null;
+  }
+  return value as FidyahStoredMeta;
 }
 
 function getPaymentEntries(details: DetailZakatItem[]) {

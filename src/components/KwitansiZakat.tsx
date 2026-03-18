@@ -15,7 +15,7 @@ export interface DetailZakatItem {
   jumlah_jiwa: number;
   metode_pembayaran?: string | null;
   harga_beras_per_liter?: number | null;
-  nama_anggota_jiwa?: string[] | null;
+  nama_anggota_jiwa?: unknown;
 }
 
 export interface KwitansiData {
@@ -36,7 +36,18 @@ interface Props {
   data: KwitansiData | null;
 }
 
+type FidyahStoredMeta = {
+  type: 'fidyah_meta';
+  version?: number;
+  metode?: 'uang' | 'beras';
+  jumlah_hari?: number;
+  harga_makan_per_hari?: number;
+  beras_per_hari?: number;
+  input_manual?: boolean;
+};
+
 const fmt = (n: number) => new Intl.NumberFormat('id-ID').format(n);
+const formatDecimal = (n: number) => `${parseFloat(n.toFixed(2))}`;
 const LITER_PER_JIWA = 3.5;
 
 function getPaymentRows(details: DetailZakatItem[]) {
@@ -48,6 +59,13 @@ function getPaymentRows(details: DetailZakatItem[]) {
     { no: 3, name: 'Infaq', detail: map['Infaq'] || map['Shodaqoh'] ? { jenis_zakat: 'Infaq', jumlah_uang: (map['Infaq']?.jumlah_uang || 0) + (map['Shodaqoh']?.jumlah_uang || 0), jumlah_beras: 0, jumlah_jiwa: 0 } as DetailZakatItem : undefined },
     { no: 4, name: 'Fidyah', detail: map['Fidyah'] },
   ];
+}
+
+function readFidyahMeta(value: unknown): FidyahStoredMeta | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || (value as { type?: string }).type !== 'fidyah_meta') {
+    return null;
+  }
+  return value as FidyahStoredMeta;
 }
 
 function renderFitrahInfo(d: DetailZakatItem) {
@@ -80,11 +98,36 @@ function renderFitrahInfo(d: DetailZakatItem) {
 
 function renderFidyahInfo(d: DetailZakatItem) {
   const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
+  const meta = readFidyahMeta(d.nama_anggota_jiwa);
+
   if (metode === 'beras') {
-    return { label: '(Beras)', amount: `${d.jumlah_beras} Liter Beras` };
-  } else {
-    return { label: '(Uang)', amount: `Rp ${fmt(d.jumlah_uang)}` };
+    if (meta?.metode === 'beras' && !meta.input_manual && meta.beras_per_hari && meta.jumlah_hari) {
+      return {
+        label: '(Beras)',
+        title: 'Fidyah (Beras)',
+        amount: `${formatDecimal(meta.beras_per_hari)} liter × ${meta.jumlah_hari} hari = ${formatDecimal(d.jumlah_beras)} liter`,
+      };
+    }
+    return {
+      label: '(Beras)',
+      title: 'Fidyah (Beras)',
+      amount: meta?.input_manual ? `Input manual: ${formatDecimal(d.jumlah_beras)} liter` : `${formatDecimal(d.jumlah_beras)} Liter Beras`,
+    };
   }
+
+  if (meta?.metode === 'uang' && meta.harga_makan_per_hari && meta.jumlah_hari) {
+    return {
+      label: '(Uang)',
+      title: 'Fidyah (Uang)',
+      amount: `Rp ${fmt(meta.harga_makan_per_hari)} × ${meta.jumlah_hari} hari = Rp ${fmt(d.jumlah_uang)}`,
+    };
+  }
+
+  return {
+    label: '(Uang)',
+    title: 'Fidyah (Uang)',
+    amount: `Rp ${fmt(d.jumlah_uang)}`,
+  };
 }
 
 export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
