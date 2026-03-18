@@ -205,7 +205,12 @@ export default function DataZakat() {
         tanggal: form.tanggal, created_by: user?.id, status_muzakki: form.status_muzakki, alamat_muzakki: form.alamat_muzakki.trim() || null,
       }).select('id, nomor_kwitansi, receipt_number').single();
       if (error) { toast.error(friendlyError(error)); return; }
-      const { error: insertError } = await supabase.from('detail_zakat').insert(items.map(d => ({ transaksi_id: inserted.id, ...d })));
+      const detailRows = items.map(d => ({
+        transaksi_id: inserted.id,
+        ...d,
+        nama_anggota_jiwa: (d.nama_anggota_jiwa ?? null) as any,
+      }));
+      const { error: insertError } = await supabase.from('detail_zakat').insert(detailRows);
       if (insertError) { toast.error(friendlyError(insertError)); return; }
       toast.success('Data zakat berhasil ditambahkan ✓');
     }

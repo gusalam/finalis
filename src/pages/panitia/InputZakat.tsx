@@ -246,7 +246,11 @@ export default function InputZakat() {
       }).select('id, nomor_kwitansi, receipt_number').single();
       if (error) { toast.error(friendlyError(error)); return; }
 
-      const detailRows = items.map(d => ({ transaksi_id: inserted.id, ...d }));
+      const detailRows = items.map(d => ({
+        transaksi_id: inserted.id,
+        ...d,
+        nama_anggota_jiwa: (d.nama_anggota_jiwa ?? null) as any,
+      }));
       const { error: detailError } = await supabase.from('detail_zakat').insert(detailRows);
       if (detailError) { toast.error(friendlyError(detailError)); return; }
 
