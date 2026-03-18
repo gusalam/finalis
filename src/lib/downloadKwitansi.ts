@@ -7,7 +7,18 @@ import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
 const fmt = (n: number) => new Intl.NumberFormat('id-ID').format(n);
+const formatDecimal = (n: number) => `${parseFloat(n.toFixed(2))}`;
 const LITER_PER_JIWA = 3.5;
+
+type FidyahStoredMeta = {
+  type: 'fidyah_meta';
+  version?: number;
+  metode?: 'uang' | 'beras';
+  jumlah_hari?: number;
+  harga_makan_per_hari?: number;
+  beras_per_hari?: number;
+  input_manual?: boolean;
+};
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -17,6 +28,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error('Failed to load image'));
     img.src = src;
   });
+}
+
+function readFidyahMeta(value: unknown): FidyahStoredMeta | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || (value as { type?: string }).type !== 'fidyah_meta') {
+    return null;
+  }
+  return value as FidyahStoredMeta;
 }
 
 function getPaymentEntries(details: DetailZakatItem[]) {
@@ -159,7 +177,9 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
 
     // Anggota Jiwa - from Fitrah only
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-    const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+    const anggotaFitrah = Array.isArray(fitrahDetail?.nama_anggota_jiwa)
+      ? fitrahDetail.nama_anggota_jiwa.filter((n): n is string => typeof n === 'string' && n.trim().length > 0)
+      : [];
     if (anggotaFitrah.length > 0) {
       const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
       doc.setFont('helvetica', 'normal');
@@ -288,28 +308,32 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
       y = startY + maxBoxH + 4;
     }
 
-    // Fidyah entries - simple display like other payments
+    // Fidyah entries
     fidyahEntries.forEach(p => {
       const d = p.detail!;
       const metode = d.metode_pembayaran || (d.jumlah_beras > 0 ? 'beras' : 'uang');
-      doc.setFont('helvetica', 'normal');
+      const meta = readFidyahMeta(d.nama_anggota_jiwa);
+      const title = metode === 'beras' ? 'Fidyah (Beras)' : 'Fidyah (Uang)';
+      const detailText = metode === 'beras'
+        ? (meta?.metode === 'beras' && !meta.input_manual && meta.beras_per_hari && meta.jumlah_hari
+            ? `${formatDecimal(meta.beras_per_hari)} liter × ${meta.jumlah_hari} hari = ${formatDecimal(d.jumlah_beras)} liter`
+            : meta?.input_manual
+              ? `Input manual: ${formatDecimal(d.jumlah_beras)} liter`
+              : `${formatDecimal(d.jumlah_beras)} Liter Beras`)
+        : (meta?.metode === 'uang' && meta.harga_makan_per_hari && meta.jumlah_hari
+            ? `Rp ${fmt(meta.harga_makan_per_hari)} × ${meta.jumlah_hari} hari = Rp ${fmt(d.jumlah_uang)}`
+            : `Rp ${fmt(d.jumlah_uang)}`);
+
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
       doc.setTextColor(0, 0, 0);
-      doc.text(`${p.no}.`, labelX + 2, y);
-      doc.text('Fidyah', labelX + 10, y);
-      if (metode === 'beras') {
-        doc.text('Beras :', labelX + 48, y);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text(`${d.jumlah_beras} Liter`, labelX + 64, y);
-        totalBeras += d.jumlah_beras;
-      } else {
-        doc.text('Uang :', labelX + 48, y);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text(`Rp ${fmt(d.jumlah_uang)}`, labelX + 64, y);
-        totalUang += d.jumlah_uang;
-      }
+      doc.text(`${p.no}. ${title}`, labelX + 2, y);
+      y += 5.5;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(detailText, labelX + 10, y);
+      if (metode === 'beras') totalBeras += d.jumlah_beras;
+      else totalUang += d.jumlah_uang;
       y += 7;
     });
 

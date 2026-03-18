@@ -108,6 +108,62 @@ export default function InputZakat() {
 
   const LITER_PER_JIWA = 3.5;
 
+  type FidyahStoredMeta = {
+    type: 'fidyah_meta';
+    version: 2;
+    metode: 'uang' | 'beras';
+    jumlah_hari: number;
+    harga_makan_per_hari?: number;
+    beras_per_hari?: number;
+    input_manual?: boolean;
+  };
+
+  const readFidyahMeta = (value: unknown): FidyahStoredMeta | null => {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || (value as { type?: string }).type !== 'fidyah_meta') {
+      return null;
+    }
+    return value as FidyahStoredMeta;
+  };
+
+  const validateFidyah = () => {
+    if (!detail.fidyah.enabled) return true;
+
+    if (detail.fidyah.metode === 'uang') {
+      const harga = Number(detail.fidyah.harga_makan_per_hari);
+      const hari = Number(detail.fidyah.jumlah_hari);
+      if (!Number.isFinite(harga) || harga <= 0) {
+        toast.error('Harga makan per hari harus lebih dari 0');
+        return false;
+      }
+      if (!Number.isFinite(hari) || hari < 1) {
+        toast.error('Jumlah hari fidyah minimal 1');
+        return false;
+      }
+      return true;
+    }
+
+    if (detail.fidyah.input_manual) {
+      const jumlahBeras = Number(detail.fidyah.jumlah_beras);
+      if (!Number.isFinite(jumlahBeras) || jumlahBeras <= 0) {
+        toast.error('Jumlah beras manual harus lebih dari 0');
+        return false;
+      }
+      return true;
+    }
+
+    const berasPerHari = Number(detail.fidyah.beras_per_hari);
+    const hari = Number(detail.fidyah.jumlah_hari);
+    if (!Number.isFinite(berasPerHari) || berasPerHari <= 0) {
+      toast.error('Beras per hari harus lebih dari 0');
+      return false;
+    }
+    if (!Number.isFinite(hari) || hari < 1) {
+      toast.error('Jumlah hari fidyah minimal 1');
+      return false;
+    }
+    return true;
+  };
+
   const buildDetails = (): DetailZakatItem[] => {
     const items: DetailZakatItem[] = [];
     if (detail.fitrah.enabled) {
@@ -129,13 +185,44 @@ export default function InputZakat() {
     if (detail.infaq.enabled) items.push({ jenis_zakat: 'Infaq', jumlah_uang: Number(detail.infaq.jumlah_uang) || 0, jumlah_beras: 0, jumlah_jiwa: 0 });
     if (detail.fidyah.enabled) {
       const metode = detail.fidyah.metode;
-      items.push({
-        jenis_zakat: 'Fidyah',
-        jumlah_uang: metode === 'uang' ? Number(detail.fidyah.jumlah_uang) || 0 : 0,
-        jumlah_beras: metode === 'beras' ? Number(detail.fidyah.jumlah_beras) || 0 : 0,
-        jumlah_jiwa: 0,
-        metode_pembayaran: metode,
-      });
+      if (metode === 'uang') {
+        const hargaMakan = Number(detail.fidyah.harga_makan_per_hari) || 0;
+        const jumlahHari = Number(detail.fidyah.jumlah_hari) || 0;
+        items.push({
+          jenis_zakat: 'Fidyah',
+          jumlah_uang: hargaMakan * jumlahHari,
+          jumlah_beras: 0,
+          jumlah_jiwa: 0,
+          metode_pembayaran: metode,
+          nama_anggota_jiwa: {
+            type: 'fidyah_meta',
+            version: 2,
+            metode: 'uang',
+            jumlah_hari: jumlahHari,
+            harga_makan_per_hari: hargaMakan,
+          } as any,
+        });
+      } else {
+        const inputManual = detail.fidyah.input_manual;
+        const jumlahHari = Number(detail.fidyah.jumlah_hari) || 0;
+        const berasPerHari = Number(detail.fidyah.beras_per_hari) || 0;
+        const totalBeras = inputManual ? Number(detail.fidyah.jumlah_beras) || 0 : berasPerHari * jumlahHari;
+        items.push({
+          jenis_zakat: 'Fidyah',
+          jumlah_uang: 0,
+          jumlah_beras: totalBeras,
+          jumlah_jiwa: 0,
+          metode_pembayaran: metode,
+          nama_anggota_jiwa: {
+            type: 'fidyah_meta',
+            version: 2,
+            metode: 'beras',
+            jumlah_hari: jumlahHari,
+            beras_per_hari: berasPerHari,
+            input_manual: inputManual,
+          } as any,
+        });
+      }
     }
     return items;
   };
@@ -144,6 +231,8 @@ export default function InputZakat() {
     if (submitting) return;
     if (!form.nama_muzakki.trim()) { toast.error('Nama muzakki wajib diisi'); return; }
     if (!form.alamat_muzakki.trim()) { toast.error('Alamat muzakki wajib diisi untuk transparansi data.'); return; }
+    if (!validateFidyah()) return;
+
     const items = buildDetails();
     if (items.length === 0) { toast.error('Pilih minimal satu jenis zakat'); return; }
 
@@ -157,7 +246,11 @@ export default function InputZakat() {
       }).select('id, nomor_kwitansi, receipt_number').single();
       if (error) { toast.error(friendlyError(error)); return; }
 
-      const detailRows = items.map(d => ({ transaksi_id: inserted.id, ...d }));
+      const detailRows = items.map(d => ({
+        transaksi_id: inserted.id,
+        ...d,
+        nama_anggota_jiwa: (d.nama_anggota_jiwa ?? null) as any,
+      }));
       const { error: detailError } = await supabase.from('detail_zakat').insert(detailRows);
       if (detailError) { toast.error(friendlyError(detailError)); return; }
 
@@ -177,7 +270,7 @@ export default function InputZakat() {
     nomor: t.nomor_kwitansi || 0, receipt_number: t.receipt_number || undefined, nama_muzakki: t.nama_muzakki,
     status_muzakki: t.status_muzakki || undefined, rt_nama: t.rt?.nama_rt || undefined,
     alamat_muzakki: t.alamat_muzakki || undefined,
-    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null, nama_anggota_jiwa: Array.isArray(d.nama_anggota_jiwa) ? d.nama_anggota_jiwa : null })),
+    details: (t.detail_zakat || []).map((d: any) => ({ jenis_zakat: d.jenis_zakat, jumlah_uang: Number(d.jumlah_uang) || 0, jumlah_beras: Number(d.jumlah_beras) || 0, jumlah_jiwa: Number(d.jumlah_jiwa) || 0, metode_pembayaran: d.metode_pembayaran || null, harga_beras_per_liter: Number(d.harga_beras_per_liter) || null, nama_anggota_jiwa: d.nama_anggota_jiwa ?? null })),
     tanggal: t.tanggal, penerima: getCreatorName(t),
   });
 

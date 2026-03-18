@@ -10,16 +10,26 @@ export interface DetailForm {
   fitrah: { enabled: boolean; jumlah_jiwa: string; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran; harga_beras_per_liter: string; nama_anggota_jiwa: string[] };
   mal: { enabled: boolean; jumlah_uang: string };
   infaq: { enabled: boolean; jumlah_uang: string };
-  fidyah: { enabled: boolean; jumlah_uang: string; jumlah_beras: string; metode: MetodePembayaran };
+  fidyah: {
+    enabled: boolean;
+    jumlah_uang: string;
+    jumlah_beras: string;
+    metode: MetodePembayaran;
+    harga_makan_per_hari: string;
+    jumlah_hari: string;
+    beras_per_hari: string;
+    input_manual: boolean;
+  };
 }
 
 const LITER_PER_JIWA = 3.5;
+const DEFAULT_FIDYAH_BERAS_PER_HARI = '0.7';
 
 export const emptyDetail = (): DetailForm => ({
   fitrah: { enabled: false, jumlah_jiwa: '1', jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_beras_per_liter: '', nama_anggota_jiwa: [] },
   mal: { enabled: false, jumlah_uang: '' },
   infaq: { enabled: false, jumlah_uang: '' },
-  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', metode: 'beras' },
+  fidyah: { enabled: false, jumlah_uang: '', jumlah_beras: '', metode: 'beras', harga_makan_per_hari: '', jumlah_hari: '1', beras_per_hari: DEFAULT_FIDYAH_BERAS_PER_HARI, input_manual: false },
 });
 
 interface Props {
@@ -29,6 +39,7 @@ interface Props {
 }
 
 const fmt = (n: number) => new Intl.NumberFormat('id-ID').format(n);
+const formatDecimal = (n: number) => `${parseFloat(n.toFixed(2))}`;
 
 const FitrahFields = memo(function FitrahFields({
   fitrah, onToggle, onFieldChange, onAnggotaChange, idPrefix,
@@ -66,11 +77,11 @@ const FitrahFields = memo(function FitrahFields({
           </div>
           <div>
             <Label>Harga Beras per Liter (Rp) <span className="text-destructive">*</span></Label>
-            <Input type="number" inputMode="numeric" min="0" defaultValue={fitrah.harga_beras_per_liter} key={`${idPrefix}-fitrah-harga`} onBlur={e => onFieldChange('harga_beras_per_liter', e.target.value)} onChange={e => onFieldChange('harga_beras_per_liter', e.target.value)} placeholder="Contoh: 12000" />
+            <Input type="number" inputMode="numeric" min="0" value={fitrah.harga_beras_per_liter} onChange={e => onFieldChange('harga_beras_per_liter', e.target.value)} placeholder="Contoh: 12000" />
           </div>
           <div>
             <Label>Jumlah Jiwa <span className="text-destructive">*</span></Label>
-            <Input type="number" inputMode="numeric" min="1" defaultValue={fitrah.jumlah_jiwa} key={`${idPrefix}-jiwa`} onBlur={e => onFieldChange('jumlah_jiwa', e.target.value)} onChange={e => onFieldChange('jumlah_jiwa', e.target.value)} />
+            <Input type="number" inputMode="numeric" min="1" value={fitrah.jumlah_jiwa} onChange={e => onFieldChange('jumlah_jiwa', e.target.value)} />
           </div>
           {fitrah.metode === 'uang' && (
             <div>
@@ -122,7 +133,7 @@ const SimpleMoneyField = memo(function SimpleMoneyField({ id, label, enabled, va
       {enabled && (
         <div className="ml-6">
           <Label>Jumlah Uang (Rp) <span className="text-destructive">*</span></Label>
-          <Input type="number" inputMode="numeric" min="0" defaultValue={value} key={`${id}-${enabled}`} onBlur={e => onValueChange(e.target.value)} onChange={e => onValueChange(e.target.value)} placeholder="0" />
+          <Input type="number" inputMode="numeric" min="0" value={value} onChange={e => onValueChange(e.target.value)} placeholder="0" />
         </div>
       )}
     </div>
@@ -134,9 +145,16 @@ const FidyahFields = memo(function FidyahFields({
 }: {
   fidyah: DetailForm['fidyah'];
   onToggle: (v: boolean) => void;
-  onFieldChange: (field: string, value: string) => void;
+  onFieldChange: (field: keyof DetailForm['fidyah'], value: string | boolean) => void;
   idPrefix: string;
 }) {
+  const hargaMakan = Number(fidyah.harga_makan_per_hari) || 0;
+  const jumlahHari = Number(fidyah.jumlah_hari) || 0;
+  const berasPerHari = Number(fidyah.beras_per_hari) || 0;
+  const totalUang = hargaMakan * jumlahHari;
+  const totalBerasOtomatis = berasPerHari * jumlahHari;
+  const jumlahBerasManual = Number(fidyah.jumlah_beras) || 0;
+
   return (
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
@@ -159,27 +177,72 @@ const FidyahFields = memo(function FidyahFields({
             </RadioGroup>
           </div>
 
-          {fidyah.metode === 'beras' ? (
-            <div>
-              <Label>Jumlah Beras (Liter) <span className="text-destructive">*</span></Label>
-              <Input type="number" inputMode="numeric" min="0" defaultValue={fidyah.jumlah_beras} key={`${idPrefix}-fidyah-beras`} onBlur={e => onFieldChange('jumlah_beras', e.target.value)} onChange={e => onFieldChange('jumlah_beras', e.target.value)} placeholder="Contoh: 5" />
-            </div>
+          {fidyah.metode === 'uang' ? (
+            <>
+              <div>
+                <Label>Harga Makan per Hari (Rp) <span className="text-destructive">*</span></Label>
+                <Input type="number" inputMode="numeric" min="1" value={fidyah.harga_makan_per_hari} onChange={e => onFieldChange('harga_makan_per_hari', e.target.value)} placeholder="Contoh: 45000" />
+              </div>
+              <div>
+                <Label>Jumlah Hari <span className="text-destructive">*</span></Label>
+                <Input type="number" inputMode="numeric" min="1" value={fidyah.jumlah_hari} onChange={e => onFieldChange('jumlah_hari', e.target.value)} placeholder="Contoh: 5" />
+              </div>
+              <div>
+                <Label>Total Fidyah (Rp) — otomatis dihitung</Label>
+                <Input type="text" value={hargaMakan > 0 && jumlahHari >= 1 ? `Rp ${fmt(totalUang)}` : '—'} readOnly className="bg-muted cursor-not-allowed" />
+              </div>
+              <div className="rounded-md bg-muted p-3 text-sm">
+                {hargaMakan > 0 && jumlahHari >= 1 ? (
+                  <p><strong>Rp {fmt(hargaMakan)}</strong> × <strong>{jumlahHari}</strong> hari = <strong>Rp {fmt(totalUang)}</strong></p>
+                ) : (
+                  <p className="text-muted-foreground">Isi harga makan per hari dan jumlah hari untuk melihat perhitungan</p>
+                )}
+              </div>
+            </>
           ) : (
-            <div>
-              <Label>Jumlah Uang (Rp) <span className="text-destructive">*</span></Label>
-              <Input type="number" inputMode="numeric" min="0" defaultValue={fidyah.jumlah_uang} key={`${idPrefix}-fidyah-uang`} onBlur={e => onFieldChange('jumlah_uang', e.target.value)} onChange={e => onFieldChange('jumlah_uang', e.target.value)} placeholder="Contoh: 50000" />
-            </div>
-          )}
+            <>
+              <div className="flex items-center space-x-2">
+                <Checkbox id={`${idPrefix}-fidyah-manual`} checked={fidyah.input_manual} onCheckedChange={v => onFieldChange('input_manual', !!v)} />
+                <Label htmlFor={`${idPrefix}-fidyah-manual`} className="cursor-pointer">Input manual</Label>
+              </div>
 
-          <div className="rounded-md bg-muted p-3 text-sm">
-            <p className="text-muted-foreground">Fidyah diinput secara manual tanpa perhitungan otomatis.</p>
-            {fidyah.metode === 'beras' && Number(fidyah.jumlah_beras) > 0 && (
-              <p className="mt-1">Beras: <strong>{fidyah.jumlah_beras} Liter</strong></p>
-            )}
-            {fidyah.metode === 'uang' && Number(fidyah.jumlah_uang) > 0 && (
-              <p className="mt-1">Uang: <strong>Rp {fmt(Number(fidyah.jumlah_uang))}</strong></p>
-            )}
-          </div>
+              {fidyah.input_manual ? (
+                <div>
+                  <Label>Jumlah Beras (Liter) <span className="text-destructive">*</span></Label>
+                  <Input type="number" inputMode="decimal" min="0" step="0.1" value={fidyah.jumlah_beras} onChange={e => onFieldChange('jumlah_beras', e.target.value)} placeholder="Contoh: 3.5" />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label>Beras per Hari (Liter) <span className="text-destructive">*</span></Label>
+                    <Input type="number" inputMode="decimal" min="0.1" step="0.1" value={fidyah.beras_per_hari} onChange={e => onFieldChange('beras_per_hari', e.target.value)} placeholder="0.7" />
+                  </div>
+                  <div>
+                    <Label>Jumlah Hari <span className="text-destructive">*</span></Label>
+                    <Input type="number" inputMode="numeric" min="1" value={fidyah.jumlah_hari} onChange={e => onFieldChange('jumlah_hari', e.target.value)} placeholder="Contoh: 5" />
+                  </div>
+                  <div>
+                    <Label>Total Beras (Liter) — otomatis dihitung</Label>
+                    <Input type="text" value={berasPerHari > 0 && jumlahHari >= 1 ? `${formatDecimal(totalBerasOtomatis)} Liter` : '—'} readOnly className="bg-muted cursor-not-allowed" />
+                  </div>
+                </>
+              )}
+
+              <div className="rounded-md bg-muted p-3 text-sm">
+                {fidyah.input_manual ? (
+                  jumlahBerasManual > 0 ? (
+                    <p>Input manual: <strong>{formatDecimal(jumlahBerasManual)} liter</strong></p>
+                  ) : (
+                    <p className="text-muted-foreground">Isi jumlah beras manual untuk fidyah beras</p>
+                  )
+                ) : berasPerHari > 0 && jumlahHari >= 1 ? (
+                  <p><strong>{formatDecimal(berasPerHari)} liter</strong> × <strong>{jumlahHari}</strong> hari = <strong>{formatDecimal(totalBerasOtomatis)} liter</strong></p>
+                ) : (
+                  <p className="text-muted-foreground">Isi beras per hari dan jumlah hari untuk melihat perhitungan</p>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -207,8 +270,8 @@ function ZakatDetailFields({ detail, onChange, idPrefix = 'zdf' }: Props) {
   const toggleInfaq = useCallback((v: boolean) => { onChange(d => ({ ...d, infaq: { ...d.infaq, enabled: v } })); }, [onChange]);
   const updateInfaq = useCallback((v: string) => { onChange(d => ({ ...d, infaq: { ...d.infaq, jumlah_uang: v } })); }, [onChange]);
   const toggleFidyah = useCallback((v: boolean) => { onChange(d => ({ ...d, fidyah: { ...d.fidyah, enabled: v } })); }, [onChange]);
-  const updateFidyahField = useCallback((field: string, v: string) => {
-    onChange(prev => ({ ...prev, fidyah: { ...prev.fidyah, [field]: v } }));
+  const updateFidyahField = useCallback((field: keyof DetailForm['fidyah'], value: string | boolean) => {
+    onChange(prev => ({ ...prev, fidyah: { ...prev.fidyah, [field]: value } }));
   }, [onChange]);
 
   return (
