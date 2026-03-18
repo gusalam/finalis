@@ -177,7 +177,9 @@ export async function downloadKwitansiPdf(data: KwitansiData) {
 
     // Anggota Jiwa - from Fitrah only
     const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-    const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+    const anggotaFitrah = Array.isArray(fitrahDetail?.nama_anggota_jiwa)
+      ? fitrahDetail.nama_anggota_jiwa.filter((n): n is string => typeof n === 'string' && n.trim().length > 0)
+      : [];
     if (anggotaFitrah.length > 0) {
       const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
       doc.setFont('helvetica', 'normal');
