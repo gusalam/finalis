@@ -297,7 +297,9 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         {/* Anggota Jiwa from Zakat Fitrah */}
                         {(() => {
                           const fitrahDetail = data.details.find(d => d.jenis_zakat === 'Zakat Fitrah');
-                          const anggotaFitrah = fitrahDetail?.nama_anggota_jiwa?.filter(n => n.trim()) || [];
+                          const anggotaFitrah = Array.isArray(fitrahDetail?.nama_anggota_jiwa)
+                            ? fitrahDetail.nama_anggota_jiwa.filter((n): n is string => typeof n === 'string' && n.trim().length > 0)
+                            : [];
                           if (anggotaFitrah.length === 0) return null;
                           const semuaAnggota = [data.nama_muzakki, ...anggotaFitrah].join(', ');
                           return (
@@ -338,21 +340,15 @@ export default function KwitansiZakat({ open, onOpenChange, data }: Props) {
                         </div>
                       )}
 
-                      {/* Fidyah - simple display */}
+                      {/* Fidyah */}
                       {fidyahPayments.length > 0 && fidyahPayments.map(p => {
                         const info = renderFidyahInfo(p.detail!);
                         return (
-                          <div key={p.no} style={{ marginBottom: '8px' }}>
-                            <table style={{ width: '100%', fontSize: '15px', borderCollapse: 'collapse' }}>
-                              <tbody>
-                                <tr>
-                                  <td style={{ width: '24px', padding: '4px 0' }}>{p.no}.</td>
-                                  <td style={{ width: '120px' }}>Fidyah</td>
-                                  <td style={{ width: '60px' }}>{info.label === '(Beras)' ? 'Beras :' : 'Uang :'}</td>
-                                  <td style={{ fontWeight: 'bold', fontSize: '16px' }}>{info.amount}</td>
-                                </tr>
-                              </tbody>
-                            </table>
+                          <div key={p.no} style={{ marginBottom: '8px', border: '1px solid #ddd', padding: '10px 12px', borderRadius: '4px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' }}>
+                              {p.no}. {info.title}
+                            </div>
+                            <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{info.amount}</div>
                           </div>
                         );
                       })}
