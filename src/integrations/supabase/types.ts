@@ -234,6 +234,7 @@ export type Database = {
           receipt_number: string | null
           rt_id: string | null
           status_muzakki: string | null
+          status_transaksi: string
           tanggal: string
         }
         Insert: {
@@ -246,6 +247,7 @@ export type Database = {
           receipt_number?: string | null
           rt_id?: string | null
           status_muzakki?: string | null
+          status_transaksi?: string
           tanggal?: string
         }
         Update: {
@@ -258,6 +260,7 @@ export type Database = {
           receipt_number?: string | null
           rt_id?: string | null
           status_muzakki?: string | null
+          status_transaksi?: string
           tanggal?: string
         }
         Relationships: [
